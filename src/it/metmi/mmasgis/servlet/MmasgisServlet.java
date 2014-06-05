@@ -48,6 +48,13 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		taskActions.put("logout", new LogoutTask());
 		taskActions.put("logoutO", new LogoutOffTask());
 		taskActions.put("logoutV", new LogoutVetrTask());
+		
+		//PRELEVA AGENTI
+		taskActions.put("getAgenti", new AssegnaAgenti() );
+
+		//PRELEVA ZONE
+		taskActions.put("getZone", new PrelevaZone() );
+				
 		// GESTIONE DATI GEOGRAFICI
 		taskActions.put("getNodes", new NodeTask());
 		taskActions.put("getSigla", new SiglaTask());
@@ -100,6 +107,8 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		// EXPORT TO EXCEL
 		taskActions.put("exportStat", new ExportStat());
 		taskActions.put("excel", new ExcelTask());
+		taskActions.put("text", new TextTask());
+
 		// work in progress: da fare..controlli su parametri ricevuti dalla
 		// finestra di dialogo
 		taskActions.put("fullExcel", new FullExcelTask());

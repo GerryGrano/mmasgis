@@ -31,6 +31,27 @@
 	bottom: 0;
 	right: 0
 }
+
+#usermng_button-btnIconEl
+{
+	width: 42px;
+	height: 42px;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0
+}
+
+#za_button-btnIconEl
+{
+	width: 115px!important;
+	height: 42px;
+	top: 1;
+	left: 1;
+	bottom: 0;
+	right: 0
+}
+
 #filterButton-btnIconEl{
 	width: 42px;
 	height: 42px;
