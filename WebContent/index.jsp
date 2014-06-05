@@ -9,6 +9,8 @@ if(session.getAttribute("username") == null) {
 String user_id = (String) session.getAttribute("user_id");
 String username = (String) session.getAttribute("username");
 String permessi = (String) session.getAttribute("permessi");
+String azienda_id = (String) session.getAttribute("azienda_id");
+String ruolo_id = (String) session.getAttribute("ruolo_id");
 
 //se ha il permesso 20 allora do la ZA
 String mapFolder=null;
@@ -67,6 +69,8 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 		var user_id = '<%=user_id%>';
 		var username = '<%=username%>';
 		var permessi = <%=permessi%>;
+		var azienda_id = <%=azienda_id%>;
+		var ruolo_id = <%=ruolo_id%>;
 		var lista_censimenti = <%=censimenti%>;
 		var customer = "<%=customer%>";	
 		var id_offerta = '<%=id_offerta%>';
@@ -81,7 +85,6 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 		<% if(permessi.indexOf("20") > 0){ %>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/scenario.js'></scrip" + "t>"); </script>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/zone.js'></scrip" + "t>"); </script>
-		<script> document.write("<script type='text/javascript' src='js/mappaZA/usermng.js'></scrip" + "t>"); </script>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/stdUserMng.js'></scrip" + "t>"); </script>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/adminUserMng.js'></scrip" + "t>"); </script>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/utilityUserMng.js'></scrip" + "t>"); </script>
