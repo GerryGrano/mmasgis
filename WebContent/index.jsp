@@ -82,6 +82,9 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/scenario.js'></scrip" + "t>"); </script>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/zone.js'></scrip" + "t>"); </script>
 		<script> document.write("<script type='text/javascript' src='js/mappaZA/usermng.js'></scrip" + "t>"); </script>
+		<script> document.write("<script type='text/javascript' src='js/mappaZA/stdUserMng.js'></scrip" + "t>"); </script>
+		<script> document.write("<script type='text/javascript' src='js/mappaZA/adminUserMng.js'></scrip" + "t>"); </script>
+		<script> document.write("<script type='text/javascript' src='js/mappaZA/utilityUserMng.js'></scrip" + "t>"); </script>
 		<% } %>
 		<script type="text/javascript" src="js/<%=mapFolder %>/top.js"></script>
 	<title id="page-title">MMASGIS</title>

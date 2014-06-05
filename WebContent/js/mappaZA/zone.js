@@ -647,6 +647,22 @@ function checkZone(gridval, valore) {
 }
 
 
+/**
+ * Controllo colori zona presenti nel grid zone
+ * 
+ * @param gridval
+ */
+function checkColor(gridval,colore) {
+
+	for(var x = 0; x < gridval.count(); x++ ){
+		if ( gridval.getAt(x).data.color == colore ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
 
 
 /**

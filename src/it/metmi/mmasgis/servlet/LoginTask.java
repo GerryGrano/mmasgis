@@ -103,13 +103,15 @@ public class LoginTask extends Task {
 				// se la query ha risultati creo la sessione contenente lo username
 				String[] s = result.firstElement();
 				
+				session.setAttribute("ruolo_id", s[4]);
+				session.setAttribute("azienda_id", s[3]);
 				session.setAttribute("user_id", s[2]);
 				session.setAttribute("username", s[1]);
 				session.setAttribute("is_admin", s[0]);
 				
 				String permessi = "[";	
 				for(int i=0;i<result.size();i++) {
-					permessi = permessi + "'" + result.get(i)[4]+ "',";
+					permessi = permessi + "'" + result.get(i)[6]+ "',";
 				}
 				permessi = (permessi.substring(0, permessi.length()-1))+"]";
 				session.setAttribute("permessi", permessi);

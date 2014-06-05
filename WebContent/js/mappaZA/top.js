@@ -106,10 +106,16 @@ toolbar = Ext.create('Ext.toolbar.Toolbar', {
 		tooltip : 'Gestione utente',
 		width : 50,
 		height : 50,
-		handler : winusermng,
 		icon : 'img/gestione_utente.png',
 		scale : 'medium',
-		style : 'margin: 0 0 0 10px'
+		style : 'margin: 0 0 0 10px',
+		handler : function()
+		{
+			if(ruolo_id == 1)
+				adminUserMng();
+			else
+				stdUserMng();
+		}
 	},
 
 	{

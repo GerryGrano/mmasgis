@@ -41,20 +41,39 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		super();
 		// hashmap che contiene tutti i possibili task gestiti dalla servlet
 		taskActions = new HashMap<String, Task>();
-		
+
 		// ACCESSI
 		taskActions.put("login", new LoginTask());
 		taskActions.put("loginK1", new LoginK1());
 		taskActions.put("logout", new LogoutTask());
 		taskActions.put("logoutO", new LogoutOffTask());
 		taskActions.put("logoutV", new LogoutVetrTask());
-		
+
+		//GESTIONE UTENTI
+		taskActions.put("userList", new UserList());
+		taskActions.put("roleList", new RoleList());
+		taskActions.put("addUser", new AddUser());
+		taskActions.put("modUser", new ModUser());
+		taskActions.put("delUser", new DelUser());
+		taskActions.put("permitsList", new PermitsList());
+		taskActions.put("addRuolo", new addRuolo());
+		taskActions.put("modNomeRuolo", new ModNomeRuolo());
+		taskActions.put("delRuolo", new DelRuolo());
+		taskActions.put("estraiPermessiDeiRuoli", new EstraiPermessiDeiRuoli());
+		taskActions.put("modRelRuoloPermesso", new ModRelRuoloPermesso());
+		taskActions.put("addRelRuoloPermesso", new AddRelRuoloPermesso());
+		taskActions.put("adminUserList", new AdminUserList());
+		taskActions.put("addNewUser", new AddNewUser());
+		taskActions.put("delNewUser", new DelNewUser());
+		taskActions.put("listaRuoloAziende", new ListaRuoloAziende());
+
+
 		//PRELEVA AGENTI
 		taskActions.put("getAgenti", new AssegnaAgenti() );
 
 		//PRELEVA ZONE
 		taskActions.put("getZone", new PrelevaZone() );
-				
+
 		// GESTIONE DATI GEOGRAFICI
 		taskActions.put("getNodes", new NodeTask());
 		taskActions.put("getSigla", new SiglaTask());
@@ -75,7 +94,7 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		taskActions.put("brandsValues", new BrandsValuesList());
 		taskActions.put("fatturatiList", new FatturatiList());
 		taskActions.put("noteList", new NoteList());
-		
+
 		// work in progress: da fare..
 		taskActions.put("servicesValues", new ServicesValuesList());
 		// PERSONALIZZAZIONI
@@ -137,7 +156,7 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 	 * @param response la risposta HTTP
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-			IOException {
+	IOException {
 		try {
 			// setto la codifica della risposta http
 			response.setCharacterEncoding("utf8");
