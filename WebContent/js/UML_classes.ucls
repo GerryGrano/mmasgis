@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.3" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" language="java" name="it.metmi.mmasgis.servlet.LogoutTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/LogoutTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="99" width="289" x="498" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="it.metmi.mmasgis.servlet.MmasgisServlet" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/MmasgisServlet.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="288" x="5646" y="-95"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="it.metmi.mmasgis.servlet.LoginTaskNEW" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/LoginTaskNEW.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="289" x="827" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="it.metmi.mmasgis.servlet.ValueAzTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ValueAzTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="1657" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="it.metmi.mmasgis.servlet.ParAnalysis" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ParAnalysis.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="461" x="1156" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="it.metmi.mmasgis.servlet.ClassTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ClassTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="339" x="2036" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="it.metmi.mmasgis.servlet.FidTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/FidTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="289" x="2794" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="it.metmi.mmasgis.servlet.PotentialsList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/PotentialsList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="2415" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="it.metmi.mmasgis.servlet.ServicesValuesList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ServicesValuesList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="3123" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="it.metmi.mmasgis.servlet.PotentialsAziendaList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/PotentialsAziendaList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="3502" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="it.metmi.mmasgis.servlet.PromoK" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/PromoK.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="289" x="3881" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="it.metmi.mmasgis.servlet.PvAnalysis" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/PvAnalysis.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="432" x="4210" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="it.metmi.mmasgis.servlet.PvCount" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/PvCount.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="289" x="4682" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="it.metmi.mmasgis.servlet.ParametersAziendaList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ParametersAziendaList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="5011" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="it.metmi.mmasgis.servlet.ExportStat" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ExportStat.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="99" width="289" x="5390" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="16" language="java" name="it.metmi.mmasgis.servlet.BrandsValuesList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/BrandsValuesList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="5719" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="17" language="java" name="it.metmi.mmasgis.servlet.ValueTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ValueTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="370" x="6098" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="it.metmi.mmasgis.servlet.ListTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ListTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="243" width="370" x="6508" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="19" language="java" name="it.metmi.mmasgis.servlet.BrandsAziendaAnalysis" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/BrandsAziendaAnalysis.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="401" x="6918" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="20" language="java" name="it.metmi.mmasgis.servlet.LoginK1" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/LoginK1.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="289" x="7359" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="21" language="java" name="it.metmi.mmasgis.servlet.BrandsValuesAziendaList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/BrandsValuesAziendaList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="7688" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="22" language="java" name="it.metmi.mmasgis.servlet.SiglaTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/SiglaTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="8067" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="23" language="java" name="it.metmi.mmasgis.servlet.FullExcelTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/FullExcelTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="454" x="8446" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="24" language="java" name="it.metmi.mmasgis.servlet.ExcelTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ExcelTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="454" x="8940" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="25" language="java" name="it.metmi.mmasgis.servlet.NodeTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/NodeTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="9434" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="26" language="java" name="it.metmi.mmasgis.servlet.Task" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/Task.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="99" width="295" x="5646" y="80"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="27" language="java" name="it.metmi.mmasgis.servlet.BrandsAnalysis" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/BrandsAnalysis.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="401" x="9813" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="28" language="java" name="it.metmi.mmasgis.servlet.ClassAzTask" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ClassAzTask.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="339" x="10254" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="29" language="java" name="it.metmi.mmasgis.servlet.ParametersList" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ParametersList.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="339" x="10633" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="30" language="java" name="it.metmi.mmasgis.servlet.ParAziendaAnalysis" project="mmasgis" 
+    file="/mmasgis/src/it/metmi/mmasgis/servlet/ParAziendaAnalysis.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="461" x="11012" y="219"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <generalization id="31">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="32">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="33">    
+    <end type="SOURCE" refId="28"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="34">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="35">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="36">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="37">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="38">    
+    <end type="SOURCE" refId="25"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="39">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="40">    
+    <end type="SOURCE" refId="29"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="41">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="42">    
+    <end type="SOURCE" refId="21"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="43">    
+    <end type="SOURCE" refId="22"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="44">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="45">    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="46">    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="47">    
+    <end type="SOURCE" refId="24"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="48">    
+    <end type="SOURCE" refId="27"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="49">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="50">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="51">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <association id="52">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="53" name="taskActions"/>      
+      <multiplicity id="54" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="26" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="55">    
+    <end type="SOURCE" refId="30"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="56">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="57">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="58">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="59">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="60">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="61">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
