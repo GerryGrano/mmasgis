@@ -231,7 +231,8 @@ Ext.onReady(function () {
         protocol: OpenLayers.Protocol.WFS.fromWMSLayer(regioni),
         box: true,
         toggle: true,
-        clickout: false,
+        clickout: true,
+
         // multipleKey: "shiftKey",
         toggleKey: "ctrlKey"
     });
@@ -364,12 +365,12 @@ function fromFidToNomi(fid) {
         output.tabella = "regioni";
         break;
     case "prov2011_g":
-        output.tipo = "province";
-        output.tabella = "provincia";
+        output.tipo = "provincia";
+        output.tabella = "province";
         break;
     case "com2011_g":
-        output.tipo = "comuni";
-        output.tabella = "comune";
+        output.tipo = "comune";
+        output.tabella = "comuni";
         break;
     case "CapCR2006":
         output.tipo = "Cap";
@@ -1143,8 +1144,7 @@ function Disgrega(btn) {
     //cliccato si
 
     //tolgo this[0] ottenfo cod e layer
-    console.log(this[0]);
-    console.log(this[1]);
+
 
     var feat = getFeature(select.features, this[0]);
     var cod = feat.fid.split(".");
@@ -1159,8 +1159,6 @@ function Disgrega(btn) {
             break;
         }
     }
-    console.log(ZonaFrammentata);
-
 
     //rimuovo da italia il territorio e dalla mappa e dal box
     removeToTree(feat);
@@ -1176,10 +1174,7 @@ function Disgrega(btn) {
 //ritorna fid degli elementi da caricare
 function getChildren(fid, requestFid) {
     //fid territorio di grosso da rompere
-    //requestFid è la feature richiedendente
-
-    console.log(fid);
-    console.log(requestFid);
+    //requestFid la feature richiedendente
 
 
     var layerReq = (fromFidToNomi(requestFid.fid)).tipo;
@@ -1190,7 +1185,7 @@ function getChildren(fid, requestFid) {
     var layerDest = fromFidToNomi(fid);
     layerDest = layerDest.tipo;
     var codice = fid.split(".");
-    var codice = parseInt(codice[1]) - 1;
+    codice = parseInt(codice[1]) - 1;
 
     var cdata;
 
@@ -1204,15 +1199,10 @@ function getChildren(fid, requestFid) {
             codChiamante: codReq,
             layerChiamante: layerReq
         },
-        // success : function(response) {
-        // 	//cdata = Ext.JSON.decode(response.responseText);
-        // },
         callback: function (opt, success, response) {
             cdata = Ext.JSON.decode(response.responseText);
-            console.log(cdata);
             for (i in cdata) {
                 fid = fromNomiToFid(cdata[i].layer, cdata[i].codice);
-                console.log(fid);
                 var type = fid.split(".");
 
                 var request = OpenLayers.Request.GET({
@@ -1272,8 +1262,6 @@ function featureselectedFunction(e) {
 
     //controlla che la feature sia sia figlia di qualcuno o padre di qualcuno...
     var temp = addToTree(e.feature);
-    console.log(temp);
-    console.log(e.feature.fid);
 
     //se temp==0 inserimento senza problemi
     if (temp == 0) {
@@ -1287,9 +1275,6 @@ function featureselectedFunction(e) {
         if (contains(selectionControl.features, e.feature) == false) {
             selectionControl.features[e.feature.fid] = e.feature;
         }
-
-
-
     }
 
     //se temp stringa, il FID del Territorio padre da disgregare
@@ -1326,54 +1311,6 @@ function featureselectedFunction(e) {
 
 
 /******************************/
-
-var a;
-
-function prova2(request) {
-    var gml = new OpenLayers.Format.GML.v3();
-    gml.extractAttributes = true;
-    var features = gml.read(request.responseText);
-    a = features;
-    console.log(features);
-
-}
-
-
-function prova(fid) {
-    var layer = fid.split(".");
-    var property;
-
-    if (layer[0] == "reg2011_g") {
-        var res = "prov2011_g";
-        property = "COD_REG";
-    }
-
-    if (layer[0] == "prov2011_g") {
-        var res = "com2011_g";
-        property = "COD_PRO";
-    }
-
-    if (layer[0] == "com2011_g") {
-        var res = "capCR2006";
-        property = "PRO_COM";
-    }
-
-    var request = OpenLayers.Request.GET({
-        url: url,
-        callback: prova2,
-        params: {
-            REQUEST: "GetFeature",
-            srsName: "EPSG:900913",
-            SERVICE: "WFS",
-            VERSION: "1.1.0",
-            TYPENAME: "mmasgis:" + res,
-            propertyName: property
-        }
-    });
-
-
-}
-
 
 
 /**

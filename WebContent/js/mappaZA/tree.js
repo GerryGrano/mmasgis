@@ -37,7 +37,6 @@ tree = Ext.create('Ext.tree.Panel', {
         itemclick: function (view, rec, item, index, eventObj) {
             //costruisco il fid per cercare se gia presente sulla mappa
             var fid = fromNomiToFid(rec.raw.layer, rec.raw.codice);
-            console.log(fid);
             if (containsFromFid(select.features, fid) == false) {
                 var type = fid.split('.');
 
@@ -359,17 +358,18 @@ function getNodes(codice, layer) {
 		var cod = parseInt(codice) + 1;
 		var fid = null;
 		var type = null;
-
+		layer= layer.substring(0, 3);
+		
 		switch (layer) {
-		case "regione":
+		case "reg":
 				fid = "reg2011_g." + cod;
 				type = "reg2011_g";
 				break;
-		case "provincia":
+		case "pro":
 				fid = "prov2011_g." + cod;
 				type = "prov2011_g";
 				break;
-		case "comune":
+		case "com":
 				fid = "com2011_g." + cod;
 				type = "com2011_g";
 				break;

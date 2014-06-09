@@ -3,6 +3,9 @@
  */
 
 var numS = 1;
+var fine_caricamento = true;
+var tot_territori_da_caricare = 0;
+var tot_territori_caricati = 0;
 //array per la gestione del panel Scenario
 var myDataScenari = [];
 var store_scenario = Ext.create('Ext.data.ArrayStore', {
@@ -100,7 +103,6 @@ scenario = Ext.create('Ext.grid.Panel', {
 					}
 					else if(answ === 'yes'){
 						// inserire funzione di salvataggio su file
-						console.log('salvataggio eseguito');
 						deleteScen();
 					}
 				});
@@ -131,7 +133,6 @@ function newScenario(){
 			}
 			else if(answ === 'yes'){
 				// inserire funzione di salvataggio su file
-				console.log('salvataggio eseguito');
 				var dataS = new Array('Scenario '+(numS++), '','');
 				myDataScenari.pop();
 				myDataScenari.push(dataS);
@@ -160,7 +161,7 @@ function loadScenario(scenario) {
 	//attiva maschera di caricamento su mappa e su box
 	Ext.getCmp('mapDiv').setLoading(true, true);
 	Ext.getCmp('gridSel').setLoading(true, true);
-  Ext.getCmp('zoneSel').setLoading(true,true);
+	Ext.getCmp('zoneSel').setLoading(true,true);
 
 
 	var cdata = '';
@@ -188,7 +189,7 @@ function loadScenario(scenario) {
 			//store_scenario.loadData(myDataScenario,false);
 
 			var i;
-
+			tot_territori_da_caricare = cdata.length;
 			for (i = 0; i < cdata.length; i++) {
 				var fid = null;
 				var type = null;
@@ -398,7 +399,6 @@ function visualizzaZoneDisgregati(request) {
   //estraggo colore
   //this sarebbe il parametro scope della chiamata al geoserver
   var colore = this;
-  console.log(colore);
   //copia feature dalla risposta di geoserver
   var feat=features[0];
   //aggiungo feature all albero
@@ -418,7 +418,6 @@ function visualizzaZoneDisgregati(request) {
         cursor : 'crosshair'
     };
     feat.style=stileColore2;
-    console.log(feat);
   }
 
   //aggiungi alla mappa

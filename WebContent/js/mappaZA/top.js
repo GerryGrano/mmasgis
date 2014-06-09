@@ -348,7 +348,6 @@ function zoneAnalysis() {
 					}
 					else if(answ === 'yes'){
 						// inserire funzione di salvataggio su file
-						console.log('salvataggio eseguito');
 						closeZA(panelZA, scenarioAp);
 					}
 				});

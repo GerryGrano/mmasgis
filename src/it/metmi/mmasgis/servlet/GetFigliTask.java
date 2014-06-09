@@ -41,6 +41,8 @@ public class GetFigliTask extends Task {
 		String requestLayer = request.getParameter("layerChiamante");
 
 
+
+
 		if (db.connetti()) {
 			// eseguo la query
 			ArrayList<HashMap<String,String>> figli=null;
@@ -59,8 +61,10 @@ public class GetFigliTask extends Task {
 				figli = db.eseguiQuery(query, true);
 				
 			}else if(getParentela(requestLayer,layer)==2){
+				System.out.println("PARENTELA 2");
 
 				String parentIDQuery="SELECT parent_id FROM mmasgisdb.tree  where codice="+requestCod+" and layer ='"+requestLayer+"'";
+				System.out.println(parentIDQuery);
 				String parentID = db.eseguiQuery1Result(parentIDQuery);
 				
 				String query="select * "
@@ -82,7 +86,8 @@ public class GetFigliTask extends Task {
 				for (int i=0;i<temp.size();i++){
 					figli.add(temp.get(i));
 				}
-
+				
+				System.out.println("FINE PARENTELA 2");
 			}else if(getParentela(requestLayer,layer)==3){
 				
 				
@@ -191,6 +196,7 @@ public class GetFigliTask extends Task {
 	}
 
 	private static int getParentela(String Req,String Dest) {
+
 		if (Req.equals("provincia") && Dest.equals("regione"))
 			return 1;
 		if (Req.equals("comune") && Dest.equals("regione"))

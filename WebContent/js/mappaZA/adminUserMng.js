@@ -525,7 +525,7 @@ function gestioneRuoloAziende()
 			url : 'http://' + constants.ip + constants.root+ constants.servlet,
 			extraParams : 
 			{
-				task : 'listaRuoloAziende', 
+				task : 'listaRuoloAziende'
 			},
 			reader : 
 			{
@@ -633,7 +633,7 @@ function gestioneRuoloAziende()
 							text : 'Salva',
 							icon : 'img/ok.png',
 							scale : 'medium',
-							margin : '3',
+							margin : '3'
 //							handler : function()
 //							{
 //								var input = formMod.getForm().getFieldValues();
@@ -767,8 +767,9 @@ function salvaModificheAziende()
 	    			}
 	    		});
 	    	}
-	    	else
-	    		console.debug("Non apportate modifiche a "+key);
+	    	else{
+	    		//console.debug("Non apportate modifiche a "+key);
+	    	}
 	    }	
 	    else
 	    {

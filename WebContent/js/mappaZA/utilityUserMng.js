@@ -400,7 +400,6 @@ function modUser()
 					ruolo_mod = Ext.JSON.encode(input.ruolo);
 				}
 				
-				console.debug(nome_mod, pwd_mod, confpwd_mod, ruolo_mod);
 			
 				if(input.nome != "" && ruolo_mod != null && input.pwd != "" && input.confpwd != "")
 				{	
@@ -518,7 +517,7 @@ function modNome()
 						{
 		  					task: 'modUser',
 		  					id : id_utente,
-		  					nome : nome_mod,
+		  					nome : nome_mod
 						},
 						success : function(response)
 						{
@@ -714,7 +713,7 @@ function modRuolo()
 						{
 		  					task: 'modUser',
 		  					id : id_utente,
-		  					ruolo : ruolo_mod,
+		  					ruolo : ruolo_mod
 						},
 						success : function(response)
 						{
@@ -1230,8 +1229,9 @@ function salvaModifiche()
 	    			}
 	    		});
 	    	}
-	    	else
-	    		console.debug("Non apportate modifiche a "+key);
+	    	else{
+	    		
+	    	}
 	    }	
 	    else
 	    {
