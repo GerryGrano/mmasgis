@@ -29,7 +29,7 @@ var store_zone_selected = Ext.create('Ext.data.ArrayStore', {
     }, {
         name: 'zona'
     }, {
-        name: 'fid'
+        name: 'id'
     }, {
         name: 'agente'
     }, {
@@ -265,7 +265,7 @@ function newZone() {
                             var r = {
                                 color: colore,
                                 zona: valore,
-                                fid: "",
+                                id: "",
                                 agente: "",
                                 space: ""
                             };

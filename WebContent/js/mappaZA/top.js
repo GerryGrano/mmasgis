@@ -353,11 +353,15 @@ function zoneAnalysis() {
 						return;
 					}
 					else if(answ === 'no'){
+						unselectFeatures();
 						closeZA(panelZA, scenarioAp);
 					}
 					else if(answ === 'yes'){
-						// inserire funzione di salvataggio su file
-						console.log('salvataggio eseguito');
+						//Inserire funzione di salvataggio su file, applyDB salva su Data Base
+						applyDB(myDataScenari);
+						
+						//console.log('salvataggio eseguito');
+						unselectFeatures();
 						closeZA(panelZA, scenarioAp);
 					}
 				});
@@ -366,8 +370,21 @@ function zoneAnalysis() {
 				closeZA(panelZA, scenarioAp);
 			}
 		}
-		else {	
-			openZA(panelZA, scenarioAp);
+		else {
+			if (myDataBox.length > 0){
+				askSaveGis(function(){
+					if(answ === 'cancel'){
+						return;
+					}
+					else if(answ === 'ok'){
+						unselectFeatures();
+						openZA(panelZA, scenarioAp);
+					}
+				});
+			}
+			else{
+				openZA(panelZA, scenarioAp);
+			}
 		}
 	}
 }
@@ -410,6 +427,24 @@ function askSave(callback){
 	     msg: 'Lo scenario aperto non &#232 stato ancora salvato. Vorresti salvare su file le modifiche svolte?',
 	     buttons: Ext.Msg.YESNOCANCEL,
 	     buttonText: {yes: 'S&#236', no: 'No', cancel: 'Annulla'},
+	     icon: Ext.Msg.QUESTION,
+	     fn: function(btn){
+	    	 	answ = btn;
+	    	 	callback(answ);
+	    	 }
+	});
+}
+
+/**
+ * RICHIESTA DI CONFERMA PER APERTURA Z.A. CON TERRITORI GIA' SELEZIONATI
+ */
+
+function askSaveGis(callback){
+	Ext.Msg.show({
+	     title:'Conferma apertura Zone Analysis',
+	     msg: 'Aprendo il modulo Zone Analysis verr&#224 azzerata la selezione territoriale in corso.<br>Vuoi continuare?',
+	     buttons: Ext.Msg.OKCANCEL,
+	     buttonText: {ok: 'Ok', cancel: 'Annulla'},
 	     icon: Ext.Msg.QUESTION,
 	     fn: function(btn){
 	    	 	answ = btn;
