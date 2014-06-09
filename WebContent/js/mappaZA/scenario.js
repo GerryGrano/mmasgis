@@ -66,7 +66,7 @@ scenario = Ext.create('Ext.grid.Panel', {
 			id : 'openScenario',
 			handler : function(){
 				loadScenario(1);
-			}			
+			}
 		},{
 			xtype : 'button',
 			icon : 'img/save16x16.png',
@@ -77,9 +77,9 @@ scenario = Ext.create('Ext.grid.Panel', {
 			id : 'modifyScenario',
 			handler : modScenario
 		}]
-		
-	}],	
-	
+
+	}],
+
 	columns : [{
 		text : 'Scenario',
 		flex : 1,
@@ -151,14 +151,24 @@ function newScenario(){
 /**
  * carica da db in storeScenario tutti i territori dello scenario come paramentro
  * e visualizza sulla mappa
- * 
+ *
  * @param scenario
- * 
+ *
  */
 function loadScenario(scenario) {
+
+	//attiva maschera di caricamento su mappa e su box
+	Ext.getCmp('mapDiv').setLoading(true, true);
+	Ext.getCmp('gridSel').setLoading(true, true);
+  Ext.getCmp('zoneSel').setLoading(true,true);
+
+
 	var cdata = '';
 	//prima di caricare lo scenario cancella tutti i territori
-	//unselectFeatures();
+	unselectFeatures();
+
+	//carica zone nel box di ZA
+	LoadZoneInZA(scenario);
 
 	Ext.Ajax.request({
 		waitMsg : 'wait...',
@@ -206,6 +216,7 @@ function loadScenario(scenario) {
 
 				var request = OpenLayers.Request.GET({
 					url : url,
+					scope : cdata[i].colore,
 					callback : visualizzaZone,
 					params : {
 						REQUEST : "GetFeature",
@@ -213,41 +224,11 @@ function loadScenario(scenario) {
 						SERVICE : "WFS",
 						VERSION : "1.1.0",
 						TYPENAME : "mmasgis:" + type,
-						featureID : fid,
-						colore : cdata[i].colore
+						featureID : fid
 					}
 				});
 
 			}
-
-
-			//SOLUZIONE PROVA 
-			//caricamento nel box solo di zona x
-			//myDataScenario ordinato per zone
-
-			var zona="2";
-
-			//trova colore e nome di zona x colore
-			var colore,nome;
-			for (index=0; index< myDataScenario.length && myDataScenario[index]["zona_id"] <= zona ;index++){
-				if (myDataScenario[index]["zona_id"] ==  zona){
-					colore=myDataScenario[index]["colore"];
-					nome = myDataScenario[index]["nome"];
-					break;
-				}
-			}			
-			ZonaSelezionata=new Array(zona,nome,colore);
-			stileColore = {
-					strokeColor : '#ffffff',
-					fillColor : '#' + ZonaSelezionata[2],
-					// fillColor : '#3FF87F',
-					fillOpacity : 0.65,
-					strokeWidth : 0.7,
-					cursor : 'crosshair'
-			};
-
-			//carico zona 
-			LoadZonaInBox(ZonaSelezionata[0]);
 		}
 	});
 }
@@ -323,8 +304,8 @@ function doModScen(text){
 
 /**
  * funzione che estrare il valore del parametro dall'url
- * 
- * 
+ *
+ *
  * @param URL
  * @param parametro
  */
@@ -332,10 +313,10 @@ function GetURLParameter(URL,parametro)
 {
 	var sPageURL = URL;
 	var sURLVariables = sPageURL.split('&');
-	for (var i = 0; i < sURLVariables.length; i++) 
+	for (var i = 0; i < sURLVariables.length; i++)
 	{
 		var sParameterName = sURLVariables[i].split('=');
-		if (sParameterName[0] == parametro) 
+		if (sParameterName[0] == parametro)
 		{
 			return sParameterName[1];
 		}
@@ -345,19 +326,24 @@ function GetURLParameter(URL,parametro)
 //funzione che visualizza sul layer vettoriale la risposta di GeoServer
 function visualizzaZone(request) {
 
-	console.log(request);
 	var gml = new OpenLayers.Format.GML.v3();
 	gml.extractAttributes = true;
 	var features = gml.read(request.responseText);
 
+
 	//estraggo colore
-	var colore = GetURLParameter(request.responseXML.URL,"colore");
+	//this sarebbe il parametro scope della chiamata al geoserver
+	var colore = this;
+
 	var stileColore=null;
 	//copia feature dalla risposta di geoserver
 	var feat=features[0];
+  //aggiungo feature all albero
+  addToTree(feat);
+
 
 	//se nel parametri ce il colore...crea stile ed aggiungilo alla feature
-	if (colore!=null){		
+	if (colore!=null){
 		stileColore = {
 				strokeColor : '#ffffff',
 				fillColor : '#'+colore,
@@ -379,4 +365,72 @@ function visualizzaZone(request) {
 	if (hash_contains(selectionControl.features, features[0]) == false) {
 		selectionControl.features[features[0].fid] = features[0];
 	}
+
+	//quando ho caricato tutti i territori
+	//tolgo il caricamento aspettando 500 ms
+	tot_territori_caricati++;
+	if (tot_territori_caricati == tot_territori_da_caricare){
+        //carica la zona selezionata nel panel ZA (ovvero lultima)
+        //LoadZonaInBox(myDataScenario[myDataScenario.length-1].nome);
+        setTimeout(function () {
+        	 	Ext.getCmp('mapDiv').setLoading(false);
+                Ext.getCmp('gridSel').setLoading(false);
+            	Ext.getCmp('zoneSel').setLoading(false);
+
+        }, 500);
+      }
+      LoadZonaInBox(ZonaSelezionata[1]);
+
+}
+
+
+
+
+
+
+//funzione che visualizza sul layer vettoriale
+// i territori provenienti dal territorio frammentare
+function visualizzaZoneDisgregati(request) {
+
+  var gml = new OpenLayers.Format.GML.v3();
+  gml.extractAttributes = true;
+  var features = gml.read(request.responseText);
+  //estraggo colore
+  //this sarebbe il parametro scope della chiamata al geoserver
+  var colore = this;
+  console.log(colore);
+  //copia feature dalla risposta di geoserver
+  var feat=features[0];
+  //aggiungo feature all albero
+  addToTree(feat);
+
+  //devo aggiungere feature alla zona vecchia
+  addFeaturesToGridDisgregata(feat);
+
+  //se nel parametri ce il colore...crea stile ed aggiungilo alla feature
+  if (colore!=null){
+    var stileColore2 = {
+        strokeColor : '#ffffff',
+        fillColor : '#'+colore,
+        // fillColor : '#3FF87F',
+        fillOpacity : 0.65,
+        strokeWidth : 0.7,
+        cursor : 'crosshair'
+    };
+    feat.style=stileColore2;
+    console.log(feat);
+  }
+
+  //aggiungi alla mappa
+  if (contains(select.features, features[0]) == false) {
+    //aggiungi feature al layer select
+    select.addFeatures(feat);
+  }
+
+  //aggiungi il controllo
+  if (hash_contains(selectionControl.features, features[0]) == false) {
+    selectionControl.features[features[0].fid] = features[0];
+  }
+
+
 }

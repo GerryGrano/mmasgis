@@ -1,25 +1,31 @@
-var tree,selected,map,toolbar,regioni,province,comuni,cap,select,selectionControl,dragpan,labels,panel,r,myfeature,selectFeature;
+var tree, selected, map, toolbar, regioni, province, comuni, cap, select, selectionControl, dragpan, labels, panel, r, myfeature, selectFeature;
 var scenario, zone, panelZA, scenarioAp, zoneSel, answ;
 var url = "http://" + constants.ip + "geoserver/mmasgis/wms";
 var opacity = 1;
 //array contente [NOME_TERRITORIO,LAYER,FID_GEOSERVER,ZONA_ID,COLORE]
 var myDataScenario = [];
 //array per la popolazione dello store di box
-var myDataBox =[];
+var myDataBox = [];
 //array del tipo {zona_id,nome;colore...id_agente?}
-var ZonaSelezionata=[];
-var TitoloBox=null;
-var deseleziona_tutto=0;
+var ZonaSelezionata = [];
+var ZonaFrammentata = [];
+// Titolo del box territori selezionati
+var TitoloBox = null;
+//flag per ottimizzare la deselezione
+var deseleziona_tutto = 0;
 
 
+// oggetto colore da aggiungere alla feature prima di visualizzarla nella mappa
 var stileColore = {
-		strokeColor : '#ffffff',
-		fillColor : '#' + ZonaSelezionata[2],
-		// fillColor : '#3FF87F',
-		fillOpacity : 0.65,
-		strokeWidth : 0.7,
-		cursor : 'crosshair'
+    strokeColor: '#ffffff',
+    //fillColor: '#' + ZonaSelezionata[2],
+    fillColor: '#3FF87F',
+    fillOpacity: 0.65,
+    strokeWidth: 0.7,
+    cursor: 'crosshair'
 };
+
+var stileColoreTemp = "#3FF87F";
 
 var myData = [];
 var f;
@@ -29,240 +35,235 @@ Ext.BLANK_IMAGE_URL = './extjs/resources/themes/images/default/tree/s.gif';
 /**
  * APPLICATION MAIN ENTRY POINT
  */
-Ext.onReady(function() {
+Ext.onReady(function () {
 
-	Ext.QuickTips.init();
+    Ext.QuickTips.init();
 
-	/**
-	 * PANEL CONTENITORE DI ALBERO E GRID, LAYOUT VBOX PER DISPOSIZIONE VERTICALE
-	 */
-	var rightPanel = new Ext.Panel({
-		layout: {
-			type: 'vbox'
-		},
-		//layout : 'column',
-		region : 'west',
-		width : 250,
-		//resizable: true,
-		// height: 650,
-		// collapsible: true,
-		items : [tree, selected]
+    /**
+     * PANEL CONTENITORE DI ALBERO E GRID, LAYOUT VBOX PER DISPOSIZIONE VERTICALE
+     */
+    var rightPanel = new Ext.Panel({
+        layout: {
+            type: 'vbox'
+        },
+        //layout : 'column',
+        region: 'west',
+        width: 250,
+        //resizable: true,
+        // height: 650,
+        // collapsible: true,
+        items: [tree, selected]
 
-	});
+    });
 
-	/**
-	 * PANEL ZONE ANALYSIS, LAYOUT VBOX PER DISPOSIZIONE VERTICALE
-	 */
-	var leftPanel = new Ext.Panel({
-		id : 'zone_analysis_panel',
-		layout: {
-			type: 'vbox'
-		},
-		//layout : 'column',
-		region : 'east',
-		width : 250,
-		//resizable: true,
-		// height: 650,
-		// collapsible: true,
-		// items : [scenario, zone],
-		hidden: true
-	});
-	
-	/**
-	 * PANEL CONTENITORE "PADRE": CONTIENE MAPPA, PANEL DESTRO (SINISTRO) CON ALBERO E GRID E PANEL SINISTRO (DESTRO) PER ZONE ANALYSIS
-	 */
-	var viewport = new Ext.Viewport({
-		title : 'MMASGIS',
-		id : 'simplestbl',
-		layout : 'border',
-		listeners : {
-			afterrender : function(component, eOpts) {
-				checkAuth('map');
-			}
-		},
-		renderTo : Ext.getBody(),
-		items : [{
-			region : 'center',
-			layout : 'fit',
-			frame : true,
-			border : false,
-			html : '<div id="map" class="smallmap" ></div>'
-		}, {
-			region : 'north',
-			tbar : toolbar,
-			layout : 'fit',
-			frame : true,
-			border : false
-		}, rightPanel]
-	});
+    /**
+     * PANEL ZONE ANALYSIS, LAYOUT VBOX PER DISPOSIZIONE VERTICALE
+     */
+    var leftPanel = new Ext.Panel({
+        id: 'zone_analysis_panel',
+        layout: {
+            type: 'vbox'
+        },
+        //layout : 'column',
+        region: 'east',
+        width: 250,
+        //resizable: true,
+        // height: 650,
+        // collapsible: true,
+        // items : [scenario, zone],
+        hidden: true
+    });
 
-	var panZoom = new OpenLayers.Control.PanZoom();
+    /**
+     * PANEL CONTENITORE "PADRE": CONTIENE MAPPA, PANEL DESTRO (SINISTRO) CON ALBERO E GRID E PANEL SINISTRO (DESTRO) PER ZONE ANALYSIS
+     */
+    var viewport = new Ext.Viewport({
+        title: 'MMASGIS',
+        id: 'simplestbl',
+        layout: 'border',
+        listeners: {
+            afterrender: function (component, eOpts) {
+                checkAuth('map');
+            }
+        },
+        renderTo: Ext.getBody(),
+        items: [{
+                id : 'mapDiv',
+                region: 'center',
+                layout: 'fit',
+                frame: true,
+                border: false,
+                html: '<div id="map" class="smallmap" ></div>'
+            }, {
+                region: 'north',
+                tbar: toolbar,
+                layout: 'fit',
+                frame: true,
+                border: false
+            },
+            rightPanel
+        ]
+    });
 
-	panZoom.onButtonClick = function(evt) {
+    var panZoom = new OpenLayers.Control.PanZoom();
 
-		var btn = evt.buttonElement;
-		switch (btn.action) {
-			case "panup" :
-				this.map.pan(0, -this.getSlideFactor("h"));
-				break;
-			case "pandown" :
-				this.map.pan(0, this.getSlideFactor("h"));
-				break;
-			case "panleft" :
-				this.map.pan(-this.getSlideFactor("w"), 0);
-				break;
-			case "panright" :
-				this.map.pan(this.getSlideFactor("w"), 0);
-				break;
-			case "zoomin" :
-				this.map.zoomIn();
-				break;
-			case "zoomout" :
-				this.map.zoomOut();
-				break;
-			case "zoomworld" :
-				proj = new OpenLayers.Projection("EPSG:4326");
-				point = new OpenLayers.LonLat(12, 42);
-				map.setCenter(point.transform(proj, map.getProjectionObject()), 6);
-				break;
-		}
-	};
+    panZoom.onButtonClick = function (evt) {
 
-	// MAPPA
-	map = new OpenLayers.Map('map', {
-		div : "map",
-		projection : "EPSG:900913",
-		displayProjection : "EPSG:4326",
-		controls : [panZoom, new OpenLayers.Control.Navigation()]
-	});
+        var btn = evt.buttonElement;
+        switch (btn.action) {
+        case "panup":
+            this.map.pan(0, -this.getSlideFactor("h"));
+            break;
+        case "pandown":
+            this.map.pan(0, this.getSlideFactor("h"));
+            break;
+        case "panleft":
+            this.map.pan(-this.getSlideFactor("w"), 0);
+            break;
+        case "panright":
+            this.map.pan(this.getSlideFactor("w"), 0);
+            break;
+        case "zoomin":
+            this.map.zoomIn();
+            break;
+        case "zoomout":
+            this.map.zoomOut();
+            break;
+        case "zoomworld":
+            proj = new OpenLayers.Projection("EPSG:4326");
+            point = new OpenLayers.LonLat(12, 42);
+            map.setCenter(point.transform(proj, map.getProjectionObject()), 6);
+            break;
+        }
+    };
 
-	map.addControl(new OpenLayers.Control.LayerSwitcher());
+    // MAPPA
+    map = new OpenLayers.Map('map', {
+        div: "map",
+        projection: "EPSG:900913",
+        displayProjection: "EPSG:4326",
+        controls: [panZoom, new OpenLayers.Control.Navigation()]
+    });
 
-	gmap_hybrid = new OpenLayers.Layer.Google("Google Hybrid",
-	{
-		type : google.maps.MapTypeId.HYBRID,
-		numZoomLevels : 20
-	});
+    map.addControl(new OpenLayers.Control.LayerSwitcher());
 
-	gmap_terrain = new OpenLayers.Layer.Google("Google Terrain", 
-	{
-		type : google.maps.MapTypeId.TERRAIN,
-		numZoomLevels : 20
-	});
+    gmap_hybrid = new OpenLayers.Layer.Google("Google Hybrid", {
+        type: google.maps.MapTypeId.HYBRID,
+        numZoomLevels: 20
+    });
 
-	gmap_streets = new OpenLayers.Layer.Google("Google Streets", 
-	{
-		numZoomLevels : 20
-	});
+    gmap_terrain = new OpenLayers.Layer.Google("Google Terrain", {
+        type: google.maps.MapTypeId.TERRAIN,
+        numZoomLevels: 20
+    });
 
-	// LAYER REGIONI
-	regioni = new OpenLayers.Layer.WMS("regioni", url, {
-		layers : 'mmasgis:reg2011_g',
-		transparent : "true",
-		format : 'image/png'
-	}, {
-		opacity : opacity,
-		isBaseLayer : false
-	});
+    gmap_streets = new OpenLayers.Layer.Google("Google Streets", {
+        numZoomLevels: 20
+    });
 
-	// LAYER PROVINCE
-	province = new OpenLayers.Layer.WMS("province", url, {
-		layers : 'mmasgis:prov2011_g',
-		transparent : "true",
-		format : 'image/png'
-	}, {
-		opacity : 0.5,
-		isBaseLayer : false
-	});
+    // LAYER REGIONI
+    regioni = new OpenLayers.Layer.WMS("regioni", url, {
+        layers: 'mmasgis:reg2011_g',
+        transparent: "true",
+        format: 'image/png'
+    }, {
+        opacity: opacity,
+        isBaseLayer: false
+    });
 
-	// LAYER COMUNI
-	comuni = new OpenLayers.Layer.WMS("comuni", url, {
-		layers : 'mmasgis:com2011_g',
-		transparent : "true",
-		format : 'image/png'
-	}, {
-		opacity : 0.5,
-		isBaseLayer : false
-	});
+    // LAYER PROVINCE
+    province = new OpenLayers.Layer.WMS("province", url, {
+        layers: 'mmasgis:prov2011_g',
+        transparent: "true",
+        format: 'image/png'
+    }, {
+        opacity: 0.5,
+        isBaseLayer: false
+    });
 
-	// LAYER CAP
-	cap = new OpenLayers.Layer.WMS("CAP", url, {
-		layers : 'mmasgis:CapCR2006',
-		transparent : "true",
-		format : 'image/png'
-	}, {
-		opacity : 0.3,
-		isBaseLayer : false
-	});
-	
-	// LAYER VETTORIALE IN OVERLAY PER LA SELEZIONE E86F38
-	var mySelStyleProp = {
-		strokeColor : '#ffffff',
-		fillColor : '#3FF87F',
-		// fillColor : '#3FF87F',
-		fillOpacity : 0.2,
-		strokeWidth : 0.7,
-		cursor : 'crosshair'
+    // LAYER COMUNI
+    comuni = new OpenLayers.Layer.WMS("comuni", url, {
+        layers: 'mmasgis:com2011_g',
+        transparent: "true",
+        format: 'image/png'
+    }, {
+        opacity: 0.5,
+        isBaseLayer: false
+    });
 
-	};
-	select = new OpenLayers.Layer.Vector("Selezioni", {
-		// styleMap:
-		// new
-		// OpenLayers.Style(mySelStyleProp,OpenLayers.Feature.Vector.style["select"]),
-		styleMap : new OpenLayers.Style(mySelStyleProp, OpenLayers.Feature.Vector.style["temporary"])
+    // LAYER CAP
+    cap = new OpenLayers.Layer.WMS("CAP", url, {
+        layers: 'mmasgis:CapCR2006',
+        transparent: "true",
+        format: 'image/png'
+    }, {
+        opacity: 0.3,
+        isBaseLayer: false
+    });
 
-	});
+    // LAYER VETTORIALE IN OVERLAY PER LA SELEZIONE E86F38
+    var mySelStyleProp = {
+        strokeColor: '#ffffff',
+        fillColor: '#3FF87F',
+        // fillColor : '#3FF87F',
+        fillOpacity: 0.2,
+        strokeWidth: 0.7,
+        cursor: 'crosshair'
 
-	// AGGIUNGO LAYER ALLA MAPPA
-	map.addLayers([gmap_streets, gmap_hybrid, gmap_terrain, regioni, province, comuni, cap, select]);
+    };
+    select = new OpenLayers.Layer.Vector("Selezioni", {
+        // styleMap:
+        // new
+        // OpenLayers.Style(mySelStyleProp,OpenLayers.Feature.Vector.style["select"]),
+        styleMap: new OpenLayers.Style(mySelStyleProp, OpenLayers.Feature.Vector.style["temporary"])
 
-	// CONTROLLO PER PAN E DRAG SULLA MAPPA
-	dragpan = new OpenLayers.Control.DragPan();
-	map.addControl(dragpan);
+    });
 
-	//
-	selectionControl = new OpenLayers.Control.GetFeature({
-		protocol : OpenLayers.Protocol.WFS.fromWMSLayer(regioni),
-		box : true,
-		toggle : true,
-		clickout: false,
-		// multipleKey: "shiftKey",
-		toggleKey : "ctrlKey"
-	});
+    // AGGIUNGO LAYER ALLA MAPPA
+    map.addLayers([gmap_streets, gmap_hybrid, gmap_terrain, regioni, province, comuni, cap, select]);
 
-	// REGISTRO EVENTI PER SELEZIONARE CON CLICK IN E DESELEZIONARE CON
-	// CLICK OUT
-	selectionControl.events.register("featureselected", this, function(e) {
-		
-		// personalizzo la feature con il colore della zona		
-		e.feature.style = stileColore;
-		// aggiungi alla mappa
-		select.addFeatures([e.feature]);
-		//aggiungi a myDataScenario e myDataBox
-		addFeaturesToGrid(e.feature);
-		
-	});
-	
-	selectionControl.events.register("featureunselected", this, function(e) {
+    // CONTROLLO PER PAN E DRAG SULLA MAPPA
+    dragpan = new OpenLayers.Control.DragPan();
+    map.addControl(dragpan);
 
-		//rimuovi feature solo dalla mappa
-		select.removeFeatures([e.feature]);
-		/**ottimizzaione: 
-		*se ho cliccato il pulsante "deselect all" 
-		*non ce bisogno di rimuovere la singola feture 
-		**/
-		if (deseleziona_tutto==0)
-			removeFeaturesFromGrid(e.feature.fid);
+    // Gestorie delle selzioni
+    selectionControl = new OpenLayers.Control.GetFeature({
+        protocol: OpenLayers.Protocol.WFS.fromWMSLayer(regioni),
+        box: true,
+        toggle: true,
+        clickout: false,
+        // multipleKey: "shiftKey",
+        toggleKey: "ctrlKey"
+    });
 
-	});
+    // REGISTRO EVENTI PER SELEZIONARE CON CLICK IN E DESELEZIONARE CON
+    // CLICK OUT
+    //GESTIONE FRAMMENTAZIONE
+    selectionControl.events.register("featureselected", this, featureselectedFunction);
 
-	map.addControl(selectionControl);
-	selectionControl.activate();
-	proj = new OpenLayers.Projection("EPSG:4326");
-	point = new OpenLayers.LonLat(12, 42);
-	map.setCenter(point.transform(proj, map.getProjectionObject()), 6);
-	Ext.getCmp('select_button').toggle(true);
-	Ext.getCmp('reg_button').toggle(true);
+
+    selectionControl.events.register("featureunselected", this, function (e) {
+
+        //rimuove il territorio dalla struttura "ITALIA"
+        removeToTree(e.feature);
+        //rimuovi feature solo dalla mappa
+        select.removeFeatures([e.feature]);
+        /**ottimizzaione:
+         *se ho cliccato il pulsante "deselect all"
+         *non ce bisogno di rimuovere la singola feture
+         **/
+        if (deseleziona_tutto == 0)
+            removeFeaturesFromGrid(e.feature.fid);
+
+    });
+
+    map.addControl(selectionControl);
+    selectionControl.activate();
+    proj = new OpenLayers.Projection("EPSG:4326");
+    point = new OpenLayers.LonLat(12, 42);
+    map.setCenter(point.transform(proj, map.getProjectionObject()), 6);
+    Ext.getCmp('select_button').toggle(true);
+    Ext.getCmp('reg_button').toggle(true);
 }); // eo function onReady
 
 
@@ -276,250 +277,279 @@ Ext.onReady(function() {
  */
 function getSigla(codice, tipo, nome, fid) {
 
-	var cdata = '';
+    var cdata = '';
 
-	// console.debug(tipo);
+    // console.debug(tipo);
 
-	Ext.Ajax.request({
-		waitMsg : 'wait...',
-		url : 'http://' + constants.ip + constants.root + constants.servlet,
-		params : {
-			task : 'getSigla',
-			layer : tipo,
-			fid : codice
-		},
-		success : function(response) {
+    Ext.Ajax.request({
+        waitMsg: 'wait...',
+        url: 'http://' + constants.ip + constants.root + constants.servlet,
+        params: {
+            task: 'getSigla',
+            layer: tipo,
+            fid: codice
+        },
+        success: function (response) {
 
-			cdata = Ext.JSON.decode(response.responseText);
-			// console.debug(cdata.sigla);
-		},
-		callback : function(opt, success, respon) {
+            cdata = Ext.JSON.decode(response.responseText);
+            // console.debug(cdata.sigla);
+        },
+        callback: function (opt, success, respon) {
 
-			// console.debug(response.responseText);
-			// var cdata = Ext.JSON.decode(response.responseText);
-			// console.debug(cdata.sigla);
-			var data = new Array(nome, tipo.substring(0, 3), fid, cdata.sigla);
-			myData.push(data);
-			//console.debug(myData);
-			Ext.getCmp('gridSel').getStore().loadData(myData, false);
-		}
-	});
+            // console.debug(response.responseText);
+            // var cdata = Ext.JSON.decode(response.responseText);
+            // console.debug(cdata.sigla);
+            var data = new Array(nome, tipo.substring(0, 3), fid, cdata.sigla);
+            myData.push(data);
+            //console.debug(myData);
+            Ext.getCmp('gridSel').getStore().loadData(myData, false);
+        }
+    });
 
 }
 
 /**
- * INPUT 
+ * INPUT
  * 		nome layer "regione/i"
- * 		codice della tabella tree quindi fid di openlayer -1 
+ * 		codice della tabella tree quindi fid di openlayer -1
  * @param
  */
 
-function fromNomiToFid(nome,codice) {
+function fromNomiToFid(nome, codice) {
 
-	nome = nome.substring(0,3);
-	var fid = null;
+    nome = nome.substring(0, 3);
+    var fid = null;
 
-	switch (nome) {
+    switch (nome) {
 
-	case "reg":
-		fid  = "reg2011_g";
-		break;
-	case "pro":
-		fid = "prov2011_g";
-		break;
-	case "com":
-		fid = "com2011_g";
-		break;
-	case "Cap":
-		fid = "CapCR2006";
-		break;
-	}
+    case "reg":
+        fid = "reg2011_g";
+        break;
+    case "pro":
+        fid = "prov2011_g";
+        break;
+    case "com":
+        fid = "com2011_g";
+        break;
+    case "Cap":
+        fid = "CapCR2006";
+        break;
+    }
 
-	fid=fid.concat("."+(parseInt(codice)+1));
-	return fid;
+    fid = fid.concat("." + (parseInt(codice) + 1));
+    return fid;
 
 }
 
 /**
  * INPUT fid "reg2011_g.17" OUTPUT "regioni"
- * 
+ *
  * @param
  */
 
 function fromFidToNomi(fid) {
 
-	var type = fid.split(".");
-	var layer = type[0];
+    var type = fid.split(".");
+    var layer = type[0];
 
-	var output = {
-			tipo : "",
-			tabella : ""
-	};
+    var output = {
+        tipo: "",
+        tabella: ""
+    };
 
-	switch (layer) {
+    switch (layer) {
 
-	case "reg2011_g":
-		output.tipo = "regione";
-		output.tabella = "regioni";
-		break;
-	case "prov2011_g":
-		output.tipo = "province";
-		output.tabella = "provincia";
-		break;
-	case "com2011_g":
-		output.tipo = "comuni";
-		output.tabella = "comune";
-		break;
-	case "CapCR2006":
-		output.tipo = "Cap";
-		output.tabella = "Cap";
-		break;
-	}
+    case "reg2011_g":
+        output.tipo = "regione";
+        output.tabella = "regioni";
+        break;
+    case "prov2011_g":
+        output.tipo = "province";
+        output.tabella = "provincia";
+        break;
+    case "com2011_g":
+        output.tipo = "comuni";
+        output.tabella = "comune";
+        break;
+    case "CapCR2006":
+        output.tipo = "Cap";
+        output.tabella = "Cap";
+        break;
+    }
 
-	return output;
+    return output;
 
 }
 
 /**
  * aggiunge feature gia aggiunta alla box nella mappa
- * 
+ * scope: parametro passato al visualizzaZone(per explorer)
  * @param feature
  */
+
 function addFeaturesToMap(fid) {
 
-	var layer = fid.split(".");	
+    var layer = fid.split(".");
 
-	var request = OpenLayers.Request.GET({
-		url : url,
-		callback : visualizzaZone,
-		params : {
-			REQUEST : "GetFeature",
-			srsName : "EPSG:900913",
-			SERVICE : "WFS",
-			VERSION : "1.1.0",
-			TYPENAME : "mmasgis:" + layer[0],
-			featureID : fid,
-			colore : ZonaSelezionata[2]
-		}
-	});
+    var request = OpenLayers.Request.GET({
+        url: url,
+        scope: ZonaSelezionata[2],
+        callback: visualizzaZone,
+        params: {
+            REQUEST: "GetFeature",
+            srsName: "EPSG:900913",
+            SERVICE: "WFS",
+            VERSION: "1.1.0",
+            TYPENAME: "mmasgis:" + layer[0],
+            featureID: fid
+        }
+    });
 
 
 }
 
 /**
- * aggiunge feature all'elenco di quelle selezionate nel box della zona
- * selezionata e nell'array dello scenario
- * 
+ *
+ * aggiunge la feature a myDataScenario
  * @param feature
  */
 
 //devo construire un record da aggiungere a myDataScenario e myDataBox(box zona)
 function addFeaturesToGrid(feature) {
 
-	var cdata='';
-	//suddivido il fid
-	var fid = feature.fid;
-	var type = fid.split(".");
-	var tipo=null;
-	var cod= parseInt(type[1]);
+    var cdata = '';
+    //suddivido il fid
+    var fid = feature.fid;
+    var type = fid.split(".");
+    var tipo = null;
+    var cod = parseInt(type[1]);
 
-	var tabella=null;
-	switch (type[0]) {
+    var tabella = null;
+    switch (type[0]) {
 
-	case "reg2011_g" :
-		tipo = "regioni";
-		nome = feature.data.NOME_REG;
-		break;
-	case "prov2011_g" :
-		tipo = "province";
-		nome = feature.data.NOME_PRO;
-		break;
-	case "com2011_g" :
-		tipo = "comuni";
-		nome = feature.data.NOME_COM;
-		break;
-	case "CapCR2006" :
-		tipo = "Cap";
-		nome = feature.data.nome;
-		break;
+    case "reg2011_g":
+        tipo = "regioni";
+        nome = feature.data.NOME_REG;
+        break;
+    case "prov2011_g":
+        tipo = "province";
+        nome = feature.data.NOME_PRO;
+        break;
+    case "com2011_g":
+        tipo = "comuni";
+        nome = feature.data.NOME_COM;
+        break;
+    case "CapCR2006":
+        tipo = "Cap";
+        nome = feature.data.nome;
+        break;
+    }
+
+
+    // 	COLORE | NOME ZONA | NOME_TERRITORIO | SIGLA | TERR_ID(FID) | LAYER | ZONA_ID
+    var data = {
+        colore: ZonaSelezionata[2],
+        nome: ZonaSelezionata[1],
+        nome_territorio: nome,
+        sigla: "",
+        tabella_territorio: tipo,
+        tc_territorio_id: "" + cod,
+        zona_id: ZonaSelezionata[0]
+    };
+    myDataBox.push(data);
+    myDataScenario.push(data);
+    myDataScenario.sort(orderByZona);
+    Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+
 }
 
 
-	// 	COLORE | NOME ZONA | NOME_TERRITORIO | SIGLA | TERR_ID(FID) | LAYER | ZONA_ID
-	var data = {
-			colore:ZonaSelezionata[2],
-			nome:ZonaSelezionata[1],
-			nome_territorio:nome,
-			sigla:"",
-			tabella_territorio:tipo,
-			tc_territorio_id:""+cod,
-			zona_id:ZonaSelezionata[0]
-			};
-	myDataBox.push(data);
-	myDataScenario.push(data);
-	//myDataScenario.sort(orderByZona);
-	Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+//devo construire un record da aggiungere a myDataScenario e NON a  myDataBox(box zona)
+function addFeaturesToGridDisgregata(feature) {
 
+    var cdata = '';
+    //suddivido il fid
+    var fid = feature.fid;
+    var type = fid.split(".");
+    var tipo = null;
+    var cod = parseInt(type[1]);
+
+    var tabella = null;
+    switch (type[0]) {
+
+    case "reg2011_g":
+        tipo = "regioni";
+        nome = feature.data.NOME_REG;
+        break;
+    case "prov2011_g":
+        tipo = "province";
+        nome = feature.data.NOME_PRO;
+        break;
+    case "com2011_g":
+        tipo = "comuni";
+        nome = feature.data.NOME_COM;
+        break;
+    case "CapCR2006":
+        tipo = "Cap";
+        nome = feature.data.nome;
+        break;
+    }
+
+
+    // 	COLORE | NOME ZONA | NOME_TERRITORIO | SIGLA | TERR_ID(FID) | LAYER | ZONA_ID
+    var data = {
+        colore: ZonaFrammentata[2],
+        nome: ZonaFrammentata[1],
+        nome_territorio: nome,
+        sigla: "",
+        tabella_territorio: tipo,
+        tc_territorio_id: "" + cod,
+        zona_id: ZonaFrammentata[0]
+    };
+    myDataScenario.push(data);
+    myDataScenario.sort(orderByNomeZona);
 }
 
-/*
- * function getSigla(codice, tipo, nome, fid) { var cdata = '';
- * 
- * Ext.Ajax.request({ waitMsg: 'wait...', url: 'get-nodes.jsp', params: { task:
- * 'sigla', layer: tipo, fid: codice }, success: function(response){ cdata =
- * Ext.JSON.decode(response.responseText); //console.debug(cdata.sigla); },
- * callback: function(opt,success,respon) {
- * //console.debug(response.responseText); //var cdata =
- * Ext.JSON.decode(response.responseText); //console.debug(cdata.sigla); var
- * data = new Array(nome, tipo.substring(0,3), fid, cdata.sigla);
- * myData.push(data); //console.debug(myData);
- * Ext.getCmp('gridSel').getStore().loadData(myData, false); } }) }
- * 
- */
 
-/**
- * rimuove dall'elenco la feature passata come argomento, altrimenti rimuove tutto
- * @param featureFid
- */
 function removeFeaturesFromGrid(featureFid) {
 
-	var fid = featureFid.split(".");
-	var layer = fid[0];
-	var cod = fid[1];
-	var trovato = false;
-	var e=null;
+    var fid = featureFid.split(".");
+    var layer = fid[0];
+    var cod = fid[1];
+    var trovato = false;
+    var e = null;
 
-	//elimino da scenario
-	for (n in myDataScenario) {
-		var record = myDataScenario[n];
-		if (record.tc_territorio_id==cod && record.tabella_territorio.substring(0,3)==layer.substring(0,3)) {
-			e = myDataScenario.splice(n, 1);
-			//console.log("eliminato dallo scenario: ");
-			//console.log(e);
-			break;
-		}
-	}
+    //elimino da scenario
+    for (n in myDataScenario) {
+        var record = myDataScenario[n];
+        if (record.tc_territorio_id == cod && record.tabella_territorio.substring(0, 3) == layer.substring(0, 3)) {
+            e = myDataScenario.splice(n, 1);
+            //console.log("eliminato dallo scenario: ");
+            //console.log(e);
+            break;
+        }
+    }
 
-	//se e = null allore esci dalla funzione
-	if (e==null)
-		return;
+    //se e = null allore esci dalla funzione
+    if (e == null)
+        return;
 
-	//se il territorio fa parte della zona selezionata la elimino dal box
-	if (e[0].zona_id==ZonaSelezionata[0]){
+    //se il territorio fa parte della zona selezionata la elimino dal box
+    if (e[0].zona_id == ZonaSelezionata[0]) {
 
-		//per ogni elemento della zona
-		for (n in myDataBox) {
-			var record = myDataBox[n];
-			if (record.tc_territorio_id==cod && record.tabella_territorio.substring(0,3)==layer.substring(0,3)) {
-				e = myDataBox.splice(n, 1);
-				//console.log("myDataBox eliminato: ");
-				//console.log(e);
-				break;
-			}
-		}
-		Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+        //per ogni elemento della zona
+        for (n in myDataBox) {
+            var record = myDataBox[n];
+            if (record.tc_territorio_id == cod && record.tabella_territorio.substring(0, 3) == layer.substring(0, 3)) {
+                e = myDataBox.splice(n, 1);
+                //console.log("myDataBox eliminato: ");
+                //console.log(e);
+                break;
+            }
+        }
+        Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
 
-	}
+    }
 
 }
 
@@ -530,75 +560,857 @@ function removeFeaturesFromGrid(featureFid) {
  * @param custom
  */
 function showFeatures(database, custom) {
-	var f = document.getElementById('showFeatures');
-	r = 0;
+    var f = document.getElementById('showFeatures');
+    r = 0;
 
-	for (feature in selectionControl.features) {
-		r++;
-		feature_id = selectionControl.features[feature].fid;
-		fid = feature_id.split(".");
+    for (feature in selectionControl.features) {
+        r++;
+        feature_id = selectionControl.features[feature].fid;
+        fid = feature_id.split(".");
 
-		if (fid[0] == "reg2011_g") {
-			f.reg.value = f.reg.value + selectionControl.features[feature].attributes['COD_REG'] + ",";
-		}
-		else if (fid[0] == "prov2011_g") {
-			f.pro.value = f.pro.value + selectionControl.features[feature].attributes['COD_PRO'] + ",";
-		}
-		else if (fid[0] == "com2011_g") {
-			f.com.value = f.com.value + selectionControl.features[feature].attributes['PRO_COM'] + ",";
-		}
-		else if (fid[0] == "CapCR2006") {
-			f.cap.value = f.cap.value + selectionControl.features[feature].attributes['nome'] + ",";
-		}
-	}
+        if (fid[0] == "reg2011_g") {
+            f.reg.value = f.reg.value + selectionControl.features[feature].attributes['COD_REG'] + ",";
+        } else if (fid[0] == "prov2011_g") {
+            f.pro.value = f.pro.value + selectionControl.features[feature].attributes['COD_PRO'] + ",";
+        } else if (fid[0] == "com2011_g") {
+            f.com.value = f.com.value + selectionControl.features[feature].attributes['PRO_COM'] + ",";
+        } else if (fid[0] == "CapCR2006") {
+            f.cap.value = f.cap.value + selectionControl.features[feature].attributes['nome'] + ",";
+        }
+    }
 
-	if (r > 0) {
-		f.reg.value = f.reg.value.substring(0, f.reg.value.length - 1);
-		f.pro.value = f.pro.value.substring(0, f.pro.value.length - 1);
-		f.com.value = f.com.value.substring(0, f.com.value.length - 1);
-		f.cap.value = f.cap.value.substring(0, f.cap.value.length - 1);
+    if (r > 0) {
+        f.reg.value = f.reg.value.substring(0, f.reg.value.length - 1);
+        f.pro.value = f.pro.value.substring(0, f.pro.value.length - 1);
+        f.com.value = f.com.value.substring(0, f.com.value.length - 1);
+        f.cap.value = f.cap.value.substring(0, f.cap.value.length - 1);
 
-		f.custom.value = custom;
-		f.dbname.value = database;
-		//f.customer.value = customer;
-		f.id_offerta.value = id_offerta;
-		f.id_vetrina.value = id_vetrina;
-		if(id_offerta == "" && id_vetrina == "") {
-			win = window.open('', 'new_tab');
+        f.custom.value = custom;
+        f.dbname.value = database;
+        //f.customer.value = customer;
+        f.id_offerta.value = id_offerta;
+        f.id_vetrina.value = id_vetrina;
+        if (id_offerta == "" && id_vetrina == "") {
+            win = window.open('', 'new_tab');
 
-			f.submit();
-			win.focus();
-		}
-		else {
-			f.submit();
-		}
+            f.submit();
+            win.focus();
+        } else {
+            f.submit();
+        }
 
-		f.reg.value = "";
-		f.pro.value = "";
-		f.com.value = "";
-		f.cap.value = "";
+        f.reg.value = "";
+        f.pro.value = "";
+        f.com.value = "";
+        f.cap.value = "";
 
-	}
-	else {
-		alert('nessun elemento selezionato');
-	}
+    } else {
+        alert('nessun elemento selezionato');
+    }
 
 };
 
+
 /**
- * DESELEZIONA TUTTO
+ * DESELEZIONA Zona dalla mappe e ricarica box
  */
-function unselectFeatures() {
+function unselectFeaturesByZone(NomeZona) {
+    var fid;
+    //scorro tutto lo scenario
+    var i;
+    for (i = 0; i < myDataScenario.length && myDataScenario[i]["nome"] <= NomeZona; i++) {
+        if (myDataScenario[i]["nome"] == NomeZona) {
+            //construisco fid ed elimino dalla mappa
+            fid = fromNomiToFid(myDataScenario[i].tabella_territorio, myDataScenario[i].tc_territorio_id - 1);
+            unselectSingleFeature(fid);
+            //perche ho appena eliminato un elemento dall'array
+            //e quindi la i seleziona il prossimo se no la decremento
+            i--;
+        }
+    }
 
-	//flag tasto deseleziona tutto = 1
-	deseleziona_tutto=1;
-	selectionControl.unselectAll();
-	myData = [];
-	myDataBox = [];
-	myDataScenario = [];
-	Ext.getCmp('gridSel').getStore().loadData(myData, false);
-
-	//flag tasto deseleziona tutto = 0
-	deseleziona_tutto=0;
 }
+
+
+/**
+ * Inserisce la feature nel Tree Italia
+ **/
+function addToTree(feature) {
+    var fid_code = feature.fid;
+    tipo = fid_code.substring(0, 3);
+
+    switch (tipo) {
+    case "reg":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            nome: feature.data.NOME_REG,
+            presente: "true",
+            fid: fid_code
+        };
+        return italia.addRegioneByKeyValue(feature.data.COD_REG, param);
+        break;
+    case "pro":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            cod_pro: feature.data.COD_PRO,
+            nome: feature.data.NOME_PRO,
+            presente: "true",
+            fid: fid_code
+        };
+        return italia.addProvinciaByKeyValue(feature.data.COD_PRO, param);
+        break;
+    case "com":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            cod_pro: feature.data.COD_PRO,
+            cod_com: feature.data.PRO_COM,
+            nome: feature.data.NOME_COM,
+            presente: "true",
+            fid: fid_code
+        };
+        return italia.addComuneByKeyValue(feature.data.PRO_COM, param);
+        break;
+    case "Cap":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            cod_pro: feature.data.COD_PRO,
+            cod_com: feature.data.PRO_COM,
+            cod_cap: feature.data.nome,
+            nome: feature.data.nome1,
+            fid: fid_code
+        };
+        return italia.addCapByKeyValue(feature.data.nome, param);
+        break;
+    }
+}
+
+
+// /**
+// * Rimuove la feature nel Tree Italia
+// **/
+function removeToTree(feature) {
+    var fid = feature.fid;
+    tipo = fid.substring(0, 3);
+    switch (tipo) {
+    case "reg":
+        italia.removeRegioneByKey(feature.data.COD_REG);
+        break;
+    case "pro":
+        italia.removeProvinciaByKeyRegioneKeyProvincia(feature.data.COD_REG, feature.data.COD_PRO);
+        break;
+    case "com":
+        italia.removeComuneByKeyRegioneKeyProvinciaKeyComune(feature.data.COD_REG, feature.data.COD_PRO, feature.data.PRO_COM);
+        break;
+    case "Cap":
+        italia.removeCapByKeyRegioneKeyProvinciaKeyComuneKeyCap(feature.data.COD_REG, feature.data.COD_PRO, feature.data.PRO_COM, feature.data.nome);
+        break;
+    }
+}
+
+
+
+
+//controlla che la feature sia sia figlia o padre di una gia presente
+//esemopio PROVINCIA DI MILANO figlia di LOMBARDIA
+
+//tree ITALIA SONO TROPPO TOP
+var italia = {
+    regioni: new Ext.util.HashMap(),
+    getRegioni: function () {
+        return this.regioni;
+    },
+    getRegioneByKey: function (key) {
+        return this.regioni.get(key);
+    },
+    addRegioneByKeyValue: function (keyReg, value) {
+        //controllo se esiste
+        var regione_temp = this.getRegioneByKey(keyReg);
+
+        //se non essite la inserisco
+        if (regione_temp == null) {
+            regione = {
+                cod_reg: keyReg,
+                presente: value.presente,
+                fid: value.fid,
+                nome: value.nome,
+                province: new Ext.util.HashMap()
+                //getFigli : function(this){return this.province.}
+            };
+            this.regioni.add(keyReg, regione);
+            //aggiunta
+            return 0;
+        }
+        //gia presente ritorna province sottostanti per rimuoverle
+        if (regione_temp.presente == "false")
+            return regione_temp;
+        //impossibile selezionare regione gìà presente
+    },
+    removeRegioneByKey: function (key) {
+
+        var temp = this.getRegioneByKey(key);
+        //se la regione non esiste
+        if (temp == null)
+            return;
+        //se la regione ha 0 province setta come non presente
+        if (temp.province.length > 0) {
+            return;
+        }
+        //la regione non ha province la posso rimuovere
+        this.regioni.removeAtKey(key)
+        //return this.regioni.removeAtKey(key);
+    },
+    getProvinceByKeyRegione: function (key) {
+        //key è l'indice della regione
+        if (this.getRegioneByKey(key) == null)
+            return null;
+        return this.getRegioneByKey(key).province;
+    },
+    getProvinciaByKeyRegioneKeyProvincia: function (keyReg, KeyPro) {
+        var regione = this.getRegioneByKey(keyReg);
+        if (regione != null) {
+            return regione.province.get(KeyPro);
+        }
+        return null;
+    },
+    addProvinciaByKeyValue: function (keyPro, value) {
+
+        var regione_temp = this.getRegioneByKey(value.cod_reg);
+        if (regione_temp == null) {
+            //se regione non presente aggiungi gerarchia senza problemi
+            var param_reg = {
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addRegioneByKeyValue(value.cod_reg, param_reg);
+            regione_temp = this.getRegioneByKey(value.cod_reg);
+
+        }
+        //regione presente
+        if (regione_temp.presente == "true")
+            return regione_temp.fid;
+
+        //presente ma non selezionata
+        //aggiungo provincia
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        if (provincia_temp != null && provincia_temp.presente == "false")
+            return provincia_temp;
+
+
+
+        var provincia = {
+            cod_reg: value.cod_reg,
+            cod_pro: value.cod_pro,
+            presente: value.presente,
+            fid: value.fid,
+            nome: value.nome,
+            comuni: new Ext.util.HashMap()
+        };
+        this.getProvinceByKeyRegione(value.cod_reg).add(keyPro, provincia);
+        return 0; //padre esiste ma non selezionato..fratelli selezionati, quindi posso aggiungere
+    },
+    removeProvinciaByKeyRegioneKeyProvincia: function (keyReg, KeyPr) {
+
+        var tempRegione = this.getRegioneByKey(keyReg);
+        //se la regione non esiste
+        if (tempRegione == null)
+            return -1;
+
+        var tempProvincia = this.getProvinciaByKeyRegioneKeyProvincia(keyReg, KeyPr);
+
+        //se la provincia non esiste
+        if (tempProvincia == null)
+            return -1;
+
+
+        //se numero comuni della provincia > 0 setta presente = false
+
+        if (tempProvincia.comuni.length > 0) {
+            return 0;
+        }
+        //provincia non ha comuni posso eliminarla
+        tempRegione.province.removeAtKey(KeyPr);
+
+
+        //rimuovi regione
+        this.removeRegioneByKey(keyReg);
+
+        return 1;
+    },
+    getComuniByKeyRegioneKeyProvicia: function (keyReg, KeyPro) {
+        //keyReg  indice della regione
+        //KeyPro indice provincia
+        if (this.getProvinciaByKeyRegioneKeyProvincia(keyReg, KeyPro) == null)
+            return null;
+        return this.getProvinciaByKeyRegioneKeyProvincia(keyReg, KeyPro).comuni;
+    },
+    getComuneByKeyRegioneKeyProviciaKeyComune: function (keyReg, KeyPro, KeyCom) {
+        //keyReg  indice della regione
+        //KeyPro indice provincia
+        //KeyCom indice provincia
+
+        var comuni = this.getComuniByKeyRegioneKeyProvicia(keyReg, KeyPro);
+        if (comuni == null)
+            return null;
+        return comuni.get(KeyCom);
+
+    },
+    addComuneByKeyValue: function (keyCom, value) {
+
+        var regione_temp = this.getRegioneByKey(value.cod_reg);
+        if (regione_temp == null) {
+            //se regione non presente aggiungi gerarchia senza problemi
+            var param_reg = {
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addRegioneByKeyValue(value.cod_reg, param_reg);
+            regione_temp = this.getRegioneByKey(value.cod_reg);
+        }
+        //regione presente
+        if (regione_temp.presente == "true")
+            return regione_temp.fid;
+
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        if (provincia_temp == null) {
+            //se provincia non presente aggiungi gerarchia senza problemi
+            var param_pro = {
+                cod_pro: value.cod_pro,
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addProvinciaByKeyValue(value.cod_pro, param_pro);
+            provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        }
+        //provincia presente
+        if (provincia_temp.presente == "true")
+            return provincia_temp.fid;
+
+        //controllo che non ci siano caps sotto di lui
+        var comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com);
+        if (comune_temp != null && comune_temp.presente == "false")
+            return comune_temp;
+
+        var param_com = {
+            cod_reg: value.cod_reg,
+            cod_pro: value.cod_pro,
+            cod_com: value.cod_com,
+            presente: value.presente,
+            fid: value.fid,
+            nome: value.nome,
+            caps: new Ext.util.HashMap()
+        };
+        this.getComuniByKeyRegioneKeyProvicia(value.cod_reg, value.cod_pro).add(value.cod_com, param_com);
+        return 0; //aggiunta tutto ok
+    },
+    removeComuneByKeyRegioneKeyProvinciaKeyComune: function (keyReg, keyPro, keyCom) {
+
+
+        var tempProvincia = this.getProvinciaByKeyRegioneKeyProvincia(keyReg, keyPro);
+        //se la provincia non esiste
+        if (tempProvincia == null)
+            return -1;
+
+
+        var tempComune = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, keyPro, keyCom);
+        //se numero comuni della provincia > 0 setta presente = false
+        if (tempComune == null)
+            return -1;
+
+        if (tempComune.caps.length > 0) {
+            return 0;
+        }
+        //comune non ha caps posso eliminarla
+        tempProvincia.comuni.removeAtKey(keyCom);
+
+        //rimuovo provincia
+        this.removeProvinciaByKeyRegioneKeyProvincia(keyReg, keyPro);
+        return 1;
+    },
+    getCapsByKeyRegioneKeyProviciaKeyComune: function (keyReg, KeyPro, keyCom) {
+        //keyReg  indice della regione
+        //KeyPro indice provincia
+        //KeyCom indice comune
+        if (this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, keyCom) == null)
+            return null;
+        return this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, keyCom).caps;
+    },
+    getCapByKeyRegioneKeyProviciaKeyComuneKeyCap: function (keyReg, KeyPro, keyCom, KeyCap) {
+        //ritorna il comune o null
+        comune = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, keyCom);
+        if (comune != null) {
+            return comune.caps.get(KeyCap);
+        }
+        return null;
+    },
+    addCapByKeyValue: function (KeyCap, value) {
+
+        var regione_temp = this.getRegioneByKey(value.cod_reg);
+
+        if (regione_temp == null) {
+            //se regione non presente aggiungi gerarchia senza problemi
+            var param_reg = {
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addRegioneByKeyValue(value.cod_reg, param_reg);
+            regione_temp = this.getRegioneByKey(value.cod_reg);
+        }
+        //regione presente
+        if (regione_temp.presente == "true")
+            return regione_temp.fid;
+
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        if (provincia_temp == null) {
+            //se provincia non presente aggiungi gerarchia senza problemi
+            var param_pro = {
+                cod_pro: value.cod_pro,
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addProvinciaByKeyValue(value.cod_pro, param_pro);
+            provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        }
+        //provincia presente
+        if (provincia_temp.presente == "true")
+            return provincia_temp.fid;
+
+        var comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com);
+        if (comune_temp == null) {
+            //se comune non presente aggiungi gerarchia senza problemi
+            var param_com = {
+                cod_com: value.cod_com,
+                cod_pro: value.cod_pro,
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addComuneByKeyValue(value.cod_com, param_com);
+            comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com);
+        }
+        //comune presente
+        if (comune_temp.presente == "true")
+            return comune_temp.fid;
+
+        //comune presente quindi posso aggiungere senza problemi
+        var param_cap = {
+            cod_reg: value.cod_reg,
+            cod_pro: value.cod_pro,
+            cod_com: value.cod_com,
+            cod_cap: KeyCap,
+            nome: value.nome,
+            fid: value.fid
+        };
+        this.getCapsByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com).add(KeyCap, param_cap);
+        return 0;
+    },
+    removeCapByKeyRegioneKeyProvinciaKeyComuneKeyCap: function (keyReg, keyPro, keyCom, keyCap) {
+
+
+        var tempComune = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, keyPro, keyCom);
+        //se il comune non esiste
+        if (tempComune == null)
+            return -1;
+
+
+        var tempCap = this.getCapByKeyRegioneKeyProviciaKeyComuneKeyCap(keyReg, keyPro, keyCom, keyCap);
+        //se il cap non esiste
+        if (tempCap == null)
+            return 0;
+
+        //il cap esiste lo eliminiamo
+        tempComune.caps.removeAtKey(keyCap);
+
+
+        //rimuovo comune
+        this.removeComuneByKeyRegioneKeyProvinciaKeyComune(keyReg, keyPro, keyCom);
+        return 1;
+    }
+
+};
+
+
+// IMPLEMENTAZIONE DELLA AGGREGAZIONE DEI SOTTO TERRITORIO
+function EliminaSottoTerritori(btn) {
+    //this[0]{map territori da elimanare}
+    //this[1]{e.feature territorio da aggiungere}
+    if (btn == "no" || btn == "cancel")
+        return;
+    //cliccato si
+    //elimino tutti i territori
+
+    //se object ha province... fai tutti e 3 i cicli di cancellazione
+    if (this[0].province != null) {
+        //per ogni provincia
+        for (i in this[0].province.map) {
+
+            var comuni = this[0].province.map[i].comuni;
+            for (j in comuni.map) {
+                var caps = comuni.map[j].caps;
+                for (z in caps.map) {
+                    var f3 = getFeature(select.features, caps.map[z].fid);
+                    removeToTree(f3);
+                    //select.removeFeatures([f3]);
+                    unselectSingleFeature(f3.fid);
+                    removeFeaturesFromGrid(f3.fid);
+                }
+                if (comuni.map[j] != null) {
+                    var f2 = getFeature(select.features, comuni.map[j].fid);
+                    removeToTree(f2);
+                    //select.removeFeatures([f2]);
+                    unselectSingleFeature(f2.fid);
+                    removeFeaturesFromGrid(f2.fid);
+                }
+            }
+            if (this[0].province.map[i] != null) {
+                var f1 = getFeature(select.features, this[0].province.map[i].fid);
+                removeToTree(f1);
+                //select.removeFeatures([f1]);
+                unselectSingleFeature(f1.fid);
+                removeFeaturesFromGrid(f1.fid);
+            }
+
+        }
+    }
+
+    if (this[0].comuni != null) {
+        //per ogni comune
+
+        var comuni = this[0].comuni;
+        for (j in comuni.map) {
+            var caps = comuni.map[j].caps;
+            for (z in caps.map) {
+                var f3 = getFeature(select.features, caps.map[z].fid);
+                removeToTree(f3);
+                //select.removeFeatures([f3]);
+                unselectSingleFeature(f3.fid);
+                removeFeaturesFromGrid(f3.fid);
+            }
+            if (comuni.map[j] != null) {
+                var f2 = getFeature(select.features, comuni.map[j].fid);
+                removeToTree(f2);
+                //select.removeFeatures([f2]);
+                unselectSingleFeature(f2.fid);
+                removeFeaturesFromGrid(f2.fid);
+            }
+        }
+
+    }
+
+    if (this[0].caps != null) {
+        //per ogni caps
+        var caps = this[0].caps;
+        for (z in caps.map) {
+            var f3 = getFeature(select.features, caps.map[z].fid);
+            removeToTree(f3);
+            //select.removeFeatures([f3]);
+            unselectSingleFeature(f3.fid);
+            removeFeaturesFromGrid(f3.fid);
+        }
+    }
+
+    this[1].style = stileColore;
+    //carico quello selezionato
+
+    addToTree(this[1]);
+    if (contains(select.features, this[1]) == false) {
+        select.addFeatures(this[1]);
+        addFeaturesToGrid(this[1]);
+    }
+    if (contains(selectionControl.features, this[1]) == false) {
+        selectionControl.features[this[1].fid] = this[1];
+    }
+
+};
+
+
+// IMPLEMENTAZIONE DELLA FRAMMENTAZIONE DEL TERRITORIO PASSATO IN this[0]
+function Disgrega(btn) {
+    //this[0]{stringa territorio da disgregare}
+    //this[1]{e.feature territorio da aggiungere}
+    if (btn == "no" || btn == "cancel")
+        return;
+    //cliccato si
+
+    //tolgo this[0] ottenfo cod e layer
+    console.log(this[0]);
+    console.log(this[1]);
+
+    var feat = getFeature(select.features, this[0]);
+    var cod = feat.fid.split(".");
+    var layer = cod[0];
+    cod = cod[1];
+
+    //se trovi corrispondenza...construisci ZonaFrammentata
+    for (n in myDataScenario) {
+        if (myDataScenario[n].tc_territorio_id == cod && myDataScenario[n].tabella_territorio.substring(0, 3) == layer.substring(0, 3)) {
+            //array del tipo {zona_id,nome;colore...id_agente?}
+            ZonaFrammentata = new Array(myDataScenario[n].zona_id, myDataScenario[n].nome, myDataScenario[n].colore);
+            break;
+        }
+    }
+    console.log(ZonaFrammentata);
+
+
+    //rimuovo da italia il territorio e dalla mappa e dal box
+    removeToTree(feat);
+    select.removeFeatures([feat]);
+    removeFeaturesFromGrid(feat.fid);
+    //ottengo e aggiungo oggetto con tutti quelli aggiungere
+    getChildren(feat.fid, this[1]);
+
+};
+
+
+//DOPO LA FRAMMENTAZIONE I FIGLI DELLA REGIONE DISGREGATA
+//ritorna fid degli elementi da caricare
+function getChildren(fid, requestFid) {
+    //fid territorio di grosso da rompere
+    //requestFid è la feature richiedendente
+
+    console.log(fid);
+    console.log(requestFid);
+
+
+    var layerReq = (fromFidToNomi(requestFid.fid)).tipo;
+    var codReq = requestFid.fid.split(".");
+    codReq = parseInt(codReq[1]) - 1;
+
+    //ottengo nome layer da frammentare
+    var layerDest = fromFidToNomi(fid);
+    layerDest = layerDest.tipo;
+    var codice = fid.split(".");
+    var codice = parseInt(codice[1]) - 1;
+
+    var cdata;
+
+    Ext.Ajax.request({
+        waitMsg: 'wait...',
+        url: 'http://' + constants.ip + constants.root + constants.servlet,
+        params: {
+            task: 'getFigli',
+            cod: codice,
+            layer: layerDest,
+            codChiamante: codReq,
+            layerChiamante: layerReq
+        },
+        // success : function(response) {
+        // 	//cdata = Ext.JSON.decode(response.responseText);
+        // },
+        callback: function (opt, success, response) {
+            cdata = Ext.JSON.decode(response.responseText);
+            console.log(cdata);
+            for (i in cdata) {
+                fid = fromNomiToFid(cdata[i].layer, cdata[i].codice);
+                console.log(fid);
+                var type = fid.split(".");
+
+                var request = OpenLayers.Request.GET({
+                    url: url,
+                    scope: ZonaFrammentata[2],
+                    callback: visualizzaZoneDisgregati,
+                    params: {
+                        REQUEST: "GetFeature",
+                        srsName: "EPSG:900913",
+                        SERVICE: "WFS",
+                        VERSION: "1.1.0",
+                        TYPENAME: "mmasgis:" + type[0],
+                        featureID: fid
+                    }
+                });
+
+            }
+
+            //aggiunta della fid request
+            requestFid.style = {
+                strokeColor: '#ffffff',
+                fillColor: '#' + ZonaSelezionata[2],
+                // fillColor : '#3FF87F',
+                fillOpacity: 0.65,
+                strokeWidth: 0.7,
+                cursor: 'crosshair'
+            };
+            addToTree(requestFid);
+
+            //aggiungo feature alla zona nuovo
+            addFeaturesToGrid(requestFid);
+            //aggiungi alla mappa
+            if (contains(select.features, requestFid) == false) {
+                //aggiungi feature al layer select
+                select.addFeatures(requestFid);
+            }
+
+            //aggiungi il controllo
+            if (hash_contains(selectionControl.features, requestFid) == false) {
+                selectionControl.features[requestFid.fid] = requestFid;
+            }
+
+            //carica la zona nel box con la feature originale gia aggiunta
+            LoadZonaInBox(ZonaSelezionata[1]);
+
+        }
+    });
+
+
+}
+
+
+
+
+// GESTORE DELL EVENTO FEATURE SELECTED
+function featureselectedFunction(e) {
+
+    //controlla che la feature sia sia figlia di qualcuno o padre di qualcuno...
+    var temp = addToTree(e.feature);
+    console.log(temp);
+    console.log(e.feature.fid);
+
+    //se temp==0 inserimento senza problemi
+    if (temp == 0) {
+        e.feature.style = stileColore;
+        // aggiungi alla mappa
+
+        if (contains(select.features, e.feature) == false) {
+            select.addFeatures([e.feature]);
+            addFeaturesToGrid(e.feature);
+        }
+        if (contains(selectionControl.features, e.feature) == false) {
+            selectionControl.features[e.feature.fid] = e.feature;
+        }
+
+
+
+    }
+
+    //se temp stringa, il FID del Territorio padre da disgregare
+    if (typeof (temp) == "string") {
+        var parametro = [temp, e.feature];
+        Ext.Msg.show({
+            title: 'Attenzione',
+            height: '300 px',
+            msg: 'Sovrapposizione di territori, vuoi frammentare?',
+            buttons: Ext.MessageBox.YESNO,
+            scope: parametro,
+            fn: Disgrega,
+            icon: Ext.Msg.QUESTION
+        });
+    }
+
+    //se temp oggetto, elenco feature da eliminare
+    if (typeof (temp) == "object") {
+        var parametro = [temp, e.feature];
+        Ext.Msg.show({
+            title: 'Territori già presenti nella selezione',
+            height: '300 px',
+            msg: 'Vuoi renderli parte di questa zona?',
+            buttons: Ext.MessageBox.YESNO,
+            scope: parametro,
+            fn: EliminaSottoTerritori,
+            icon: Ext.Msg.QUESTION
+        });
+    }
+
+
+}
+
+
+
+/******************************/
+
+var a;
+
+function prova2(request) {
+    var gml = new OpenLayers.Format.GML.v3();
+    gml.extractAttributes = true;
+    var features = gml.read(request.responseText);
+    a = features;
+    console.log(features);
+
+}
+
+
+function prova(fid) {
+    var layer = fid.split(".");
+    var property;
+
+    if (layer[0] == "reg2011_g") {
+        var res = "prov2011_g";
+        property = "COD_REG";
+    }
+
+    if (layer[0] == "prov2011_g") {
+        var res = "com2011_g";
+        property = "COD_PRO";
+    }
+
+    if (layer[0] == "com2011_g") {
+        var res = "capCR2006";
+        property = "PRO_COM";
+    }
+
+    var request = OpenLayers.Request.GET({
+        url: url,
+        callback: prova2,
+        params: {
+            REQUEST: "GetFeature",
+            srsName: "EPSG:900913",
+            SERVICE: "WFS",
+            VERSION: "1.1.0",
+            TYPENAME: "mmasgis:" + res,
+            propertyName: property
+        }
+    });
+
+
+}
+
+
+
+/**
+ * Abilita blocchi della ZA
+ */
+function enablesZAcomponent() {
+
+    Ext.getCmp('mapDiv').enable();
+    Ext.getCmp('tree').enable();
+    Ext.getCmp('gridSel').enable();
+    Ext.getCmp('databaseButton').enable();
+    Ext.getCmp('sposta_button').enable();
+    Ext.getCmp('select_button').enable();
+    Ext.getCmp('reg_button').enable();
+    Ext.getCmp('prov_button').enable();
+    Ext.getCmp('com_button').enable();
+    Ext.getCmp('cap_button').enable();
+    Ext.getCmp('deselect_button').enable();
+    Ext.getCmp('usermng_button').enable();
+}
+
+/**
+ * Disabilita blocchi della ZA
+ */
+function disableZAcomponent() {
+    Ext.getCmp('mapDiv').disable();
+    Ext.getCmp('tree').disable();
+    Ext.getCmp('gridSel').disable();
+    Ext.getCmp('databaseButton').disable();
+    Ext.getCmp('sposta_button').disable();
+    Ext.getCmp('select_button').disable();
+    Ext.getCmp('reg_button').disable();
+    Ext.getCmp('prov_button').disable();
+    Ext.getCmp('com_button').disable();
+    Ext.getCmp('cap_button').disable();
+    Ext.getCmp('deselect_button').disable();
+    Ext.getCmp('usermng_button').disable();
+}
+
 //EOF

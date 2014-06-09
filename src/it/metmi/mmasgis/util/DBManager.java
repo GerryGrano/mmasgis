@@ -12,7 +12,7 @@ import java.util.Vector;
  * metodi per l'esecuzione delle query sul Database.
  * 
  */
-public class DBManager{
+public class DBManager {
 
 	// CAMPI
 	/**
@@ -41,7 +41,7 @@ public class DBManager{
 	private Connection db; // La connessione col Database
 
 	/**
-	 * Flag che indica se la connessione è attiva
+	 * Flag che indica se la connessione �� attiva
 	 */
 	private boolean connesso; // Flag che indica se la connessione e' attiva
 
@@ -54,9 +54,7 @@ public class DBManager{
 	public DBManager(String nomeDB) {
 		this(nomeDB, "", "");
 	}
-	public DBManager(String nomeUtente,String pwdUtente){
-		this("",nomeUtente,pwdUtente);
-	}
+
 	/**
 	 * Costruttore della classe
 	 * 
@@ -78,23 +76,9 @@ public class DBManager{
 	/**
 	 * Metodo che apre la connessione con il Database
 	 * 
-	 * @return boolean TRUE se la connessione è stabilita con successo, FALSE
+	 * @return boolean TRUE se la connessione �� stabilita con successo, FALSE
 	 *         altrimenti.
 	 */
-	/*public boolean connettiDB(){
-		connesso=false;
-		try{
-			Class.forName("com.mysql.jdbc.Driver");
-			if(nomeDB.equals("")){
-				db = DriverManager.getConnection("jdbc:mysql://localhost/");
-				connesso=true;
-			}
-		} catch (Exception e) {
-			errore = e.getMessage();
-			e.printStackTrace();
-		}
-		return connesso;
-	}*/
 	public boolean connetti() {
 		connesso = false;
 		try {
@@ -376,6 +360,36 @@ public class DBManager{
 		}
 		return risultato;
 	}
+	
+	
+	/**
+	 * Esegue una query che ritorna un solo valore
+	 * 
+	 * @param query
+	 *            stringa che rappresenta un'istuzione SQL di tipo UPDATE da
+	 *            eseguire
+	 * @return TRUE se l'esecuzione e' andata a buon fine, FALSE se viene
+	 *         sollevata un'eccezione
+	 */
+	public String eseguiQuery1Result(String query) {
+		String result = "";
+		try {
+			Statement stmt = db.createStatement();
+			// DEBUG
+			System.out.println(query);
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				result=rs.getString(1);
+			}
+			rs.close(); // Chiudo il ResultSet
+			stmt.close(); // Chiudo lo Statement
+		} catch (Exception e) {
+			e.printStackTrace();
+			errore = e.getMessage();
+			result = "";
+		}
+		return result;
+	}
 
 	/**
 	 * Chiude la connessione corrente con il database
@@ -392,7 +406,7 @@ public class DBManager{
 	/**
 	 * Controlla lo stato della connessione con il database
 	 * 
-	 * @return TRUE se la connessione è aperta, FALSE altrimenti
+	 * @return TRUE se la connessione �� aperta, FALSE altrimenti
 	 */
 	public boolean isConnesso() {
 		return connesso;

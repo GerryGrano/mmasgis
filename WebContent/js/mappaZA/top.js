@@ -1,9 +1,9 @@
 /**
- * INIT TOOLBAR
- */
+* INIT TOOLBAR
+*/
 
 
-//controlla permessi per accedere a ZA 
+//controlla permessi per accedere a ZA
 
 toolbar = Ext.create('Ext.toolbar.Toolbar', {
 	// renderTo: document.body,
@@ -147,8 +147,8 @@ toolbar = Ext.create('Ext.toolbar.Toolbar', {
 });
 
 /**
- * VISUALIZZA PANEL CON CENSIMENTI DISPONIBILI
- */
+* VISUALIZZA PANEL CON CENSIMENTI DISPONIBILI
+*/
 function showCensimenti() {
 
 	// STORE DEI CENSIMENTI DISPONIBILI
@@ -208,19 +208,6 @@ function showCensimenti() {
 
 			});
 
-	/*
-	 * var chooseClient = Ext.create('Ext.FormPanel', { frame : true, items : [{
-	 * xtype : 'fieldset', flex : 1, title : 'Filtra l\'estrazione delle
-	 * anagrafiche', defaultType : 'radio', layout : 'anchor', defaults : {
-	 * anchor : '100%', hideEmptyLabel : false }, items : [{ checked : false,
-	 * boxLabel : 'Cliente', name : 'liv', inputValue : 'cliente' }, { checked :
-	 * false, boxLabel : 'Non cliente', name : 'liv', inputValue : 'no_cliente' }, {
-	 * checked : true, boxLabel : 'Entrambi', name : 'liv', inputValue :
-	 * 'entrambi' }] }]
-	 * 
-	 * });
-	 */
-
 	var w = new Ext.Window({
 		resizable : false,
 		width : 300,
@@ -234,23 +221,23 @@ function showCensimenti() {
 			xtype : 'toolbar',
 			dock : 'bottom',
 			items : [
-			         {
-			        	 xtype : 'tbfill'
-			         },
-			         {
-			        	 text : 'Apri',
-			        	 tooltip : 'Apri censimento',
-			        	 icon : 'img/ok.png',
-			        	 scale : 'medium',
-			        	 handler : function() {
+							{
+								xtype : 'tbfill'
+							},
+							{
+								text : 'Apri',
+								tooltip : 'Apri censimento',
+								icon : 'img/ok.png',
+								scale : 'medium',
+								handler : function() {
 
-			        		 var selection = f.getView().getSelectionModel()
-			        		 .getSelection()[0];
-			        		 // console.debug(chooseClient.getForm().getFieldValues().liv);
-			        		 showFeatures(selection.data.nome,
-			        				 selection.data.custom);
-			        	 }
-			         } ]
+									var selection = f.getView().getSelectionModel()
+									.getSelection()[0];
+									// console.debug(chooseClient.getForm().getFieldValues().liv);
+									showFeatures(selection.data.nome,
+											selection.data.custom);
+								}
+							} ]
 		} ],
 		listeners : {
 			beforeclose : function() {
@@ -265,8 +252,8 @@ function showCensimenti() {
 }
 
 /**
- * ATTIVA FUNZIONI DI DRAG E PAN SULLA MAPPA
- */
+* ATTIVA FUNZIONI DI DRAG E PAN SULLA MAPPA
+*/
 function panButtonClicked() {
 
 	Ext.getCmp('sposta_button').toggle(true);
@@ -277,8 +264,8 @@ function panButtonClicked() {
 };
 
 /**
- * ATTIVA SELEZIONE SULLA MAPPA
- */
+* ATTIVA SELEZIONE SULLA MAPPA
+*/
 function selectButtonClicked() {
 
 	Ext.getCmp('sposta_button').toggle(false);
@@ -288,8 +275,8 @@ function selectButtonClicked() {
 };
 
 /**
- * ABILITA SELEZIONE SU REGIONI
- */
+* ABILITA SELEZIONE SU REGIONI
+*/
 function showRegioni() {
 
 	selectionControl.protocol = OpenLayers.Protocol.WFS.fromWMSLayer(regioni);
@@ -300,8 +287,8 @@ function showRegioni() {
 }
 
 /**
- * ABILITA SELEZIONE SU PROVINCE
- */
+* ABILITA SELEZIONE SU PROVINCE
+*/
 function showProvince() {
 
 	selectionControl.protocol = OpenLayers.Protocol.WFS.fromWMSLayer(province);
@@ -312,8 +299,8 @@ function showProvince() {
 }
 
 /**
- * ABILITA SELEZIONE SU COMUNI
- */
+* ABILITA SELEZIONE SU COMUNI
+*/
 function showComuni() {
 
 	selectionControl.protocol = OpenLayers.Protocol.WFS.fromWMSLayer(comuni);
@@ -324,8 +311,8 @@ function showComuni() {
 }
 
 /**
- * ABILITA SELEZIONE SU CAP
- */
+* ABILITA SELEZIONE SU CAP
+*/
 function showCap() {
 
 	selectionControl.protocol = OpenLayers.Protocol.WFS.fromWMSLayer(cap);
@@ -337,10 +324,14 @@ function showCap() {
 
 
 /**
- * APERTURA E CHIUSURA ZONE ANALYSIS
- */
+* APERTURA E CHIUSURA ZONE ANALYSIS
+*/
 
 function zoneAnalysis() {
+
+	if (Ext.getCmp('zone_analysis_panel').isVisible()==false)
+     unselectFeatures();
+
 	panelZA = Ext.getCmp('zone_analysis_panel');
 	scenarioAp = Ext.getCmp('scenarioAp');
 	var scenAp = store_scenario.getCount();
@@ -364,9 +355,11 @@ function zoneAnalysis() {
 			}
 			else{
 				closeZA(panelZA, scenarioAp);
+				enablesZAcomponent();
 			}
 		}
-		else {	
+		else {
+			disableZAcomponent();
 			openZA(panelZA, scenarioAp);
 		}
 	}
@@ -388,39 +381,39 @@ function closeZA(panelZA, scenarioAp){
 		panelZA.remove(zoneSel, false);
 	}
 	Ext.getCmp('simplestbl').remove(panelZA, false);
-	
+
 	// Svuotamento degli stores:
 	store_scenario.removeAll();
-	store_zone_selected.removeAll();			
+	store_zone_selected.removeAll();
 	myDataScenario = [];
 	myDataZone = [];
 	numS = 1;
 	numZ = 1;
-	
+
 	map.updateSize();
 }
 
 /**
- * RICHIESTA DI SALVATAGGIO DEI DATI PER ZONE ANALYSIS
- */
+* RICHIESTA DI SALVATAGGIO DEI DATI PER ZONE ANALYSIS
+*/
 
 function askSave(callback){
 	Ext.Msg.show({
-	     title:'Salvataggio scenario',
-	     msg: 'Lo scenario aperto non &#232 stato ancora salvato. Vorresti salvare su file le modifiche svolte?',
-	     buttons: Ext.Msg.YESNOCANCEL,
-	     buttonText: {yes: 'S&#236', no: 'No', cancel: 'Annulla'},
-	     icon: Ext.Msg.QUESTION,
-	     fn: function(btn){
-	    	 	answ = btn;
-	    	 	callback(answ);
-	    	 }
+			title:'Salvataggio scenario',
+			msg: 'Lo scenario aperto non &#232 stato ancora salvato. Vorresti salvare su file le modifiche svolte?',
+			buttons: Ext.Msg.YESNOCANCEL,
+			buttonText: {yes: 'S&#236', no: 'No', cancel: 'Annulla'},
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn){
+					answ = btn;
+					callback(answ);
+				}
 	});
 }
 
 /**
- * LOGOUT
- */
+* LOGOUT
+*/
 function logout() {
 
 	if (id_offerta == "" && id_vetrina == "") {
@@ -440,5 +433,32 @@ function logout() {
 			}
 		}
 	}
+}
 
-};
+
+/**
+* DESELEZIONA TUTTO
+*/
+function unselectFeatures() {
+
+  Ext.getCmp('gridSel').setTitle("Territori selezionati");
+  //flag tasto deseleziona tutto = 1
+  deseleziona_tutto=1;
+  tot_territori_da_caricare = 0;
+  tot_territori_caricati=0;
+  selectionControl.unselectAll();
+  myData = [];
+  myDataZone = [];
+  myDataBox = [];
+  myDataScenario = [];
+  Ext.getCmp('gridSel').getStore().loadData(myData, false);
+  Ext.getCmp('zoneSel').getStore().loadData(myDataZone, false);
+
+  //flag tasto deseleziona tutto = 0
+  deseleziona_tutto=0;
+  //se la zona analisi è aperta allora
+  if (Ext.getCmp('zone_analysis_panel').isVisible()){
+		disableZAcomponent();
+	}
+
+}

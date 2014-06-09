@@ -1,7 +1,3 @@
-
-
-
-
 /**
  * STORE PER LE ZONE
  */
@@ -16,6 +12,11 @@ var myWinMod;
 var winAssegna;
 var selezione = '';
 var colore = 'CCCCCC';
+
+
+
+
+
 
 /**
  * STORE DELLE ZONE
@@ -35,7 +36,29 @@ var store_zone_selected = Ext.create('Ext.data.ArrayStore', {
     }, {
         name: 'space'
     }],
-    data: myDataZone
+    data: myDataZone,
+    listeners: {
+        datachanged: function () {
+            //quando cambiano i dati nel box zone
+            //se è non ce nessuna zona non fai nulla
+            if (this.getCount() < 1)
+                return;
+
+            //se tot > 0 abilita selezione mappa
+            if (this.getCount() > 0) {
+                enablesZAcomponent();
+            }
+
+            //seleziona ultima zona caricata
+            //zone.getSelectionModel().select(store_zone_selected.getAt(store_zone_selected.getCount()-1));
+
+        },
+        remove: function () {
+            if (this.getCount() < 1)
+                disableZAcomponent();
+
+        }
+    }
 });
 
 
@@ -165,25 +188,41 @@ zone = Ext.create('Ext.grid.Panel', {
             flex: 0.6,
             dataIndex: 'agente'
         }, {
-            xtype: 'actioncolumn',
-            width: 35,
-            items: [{
-                icon: 'img/del2.png', // Use a URL in the icon config
-                tooltip: 'Elimina questa zona',
-                handler: function (grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    grid.getStore().removeAt(rowIndex);
-                    myDataZone.splice(rec, 1);
-                }
-            }]
-        }]
-    },
+			xtype : 'actioncolumn',
+			width : 35,
+			items : [{
+				icon : 'img/del2.png', // Use a URL in the icon config
+				tooltip : 'Elimina questa zona',
+				handler: function(grid, rowIndex, colIndex) {
+					//elimo zona dalla griglia
+          var rec = grid.getStore().getAt(rowIndex);
+          //elimino territori della zona cancellata
+          unselectFeaturesByZone(rec.data.zona);
+          //elimino la zonaconsole.log(myDataZone);
+          myDataZone.splice(rowIndex, 1);
+          console.log(myDataZone);
+          grid.getStore().removeAt(rowIndex);
+				}
+			}]
+		}]
+	},
     listeners: {
         //all'evento seleziona zona x, carica in box i territori di x
-        select: function (grid, record, index, Opts) {
-            selezione = record;
-            console.log(record.data);
-            LoadZonaInBox(record.data.zona);
+        select: function (th, record, index, eOpts) {
+            var selection = zone.getView().getSelectionModel().getSelection()[0];
+            ZonaSelezionata = new Array(selection.data.fid, selection.data.zona, selection.data.color);
+            stileColore = {
+                strokeColor: '#ffffff',
+                fillColor: '#' + ZonaSelezionata[2],
+                // fillColor : '#3FF87F',
+                fillOpacity: 0.65,
+                strokeWidth: 0.7,
+                cursor: 'crosshair'
+            };
+
+
+            myDataBox = [];
+            LoadZonaInBox(ZonaSelezionata[1]);
         }
     }
 
@@ -649,34 +688,99 @@ function checkZone(gridval, valore) {
 
 /**
  * Controllo colori zona presenti nel grid zone
- * 
+ *
  * @param gridval
  */
-function checkColor(gridval,colore) {
+function checkColor(gridval, colore) {
 
-	for(var x = 0; x < gridval.count(); x++ ){
-		if ( gridval.getAt(x).data.color == colore ) {
-			return false;
-		}
-	}
-	return true;
+    for (var x = 0; x < gridval.count(); x++) {
+        if (gridval.getAt(x).data.color == colore) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
 
 
 /**
+ * funzione che carica nel box la zona passata come parametro
  *
- * CARICA NEL BOX I TERRITORI DELLA ZONA, PASSATA COME NOME
  *
+ * @param nome_zona UNIVOCO
  */
-function LoadZonaInBox(zona) {
-    myDataScenario.sort(orderByZona);
+
+function LoadZonaInBox(NomeZona) {
+
+
+    //ordino lo scenario
+    //posso farlo quando lo inserisco senza farlo qui?
+    //myDataScenario.sort(orderByNomeZona);
+
+    //imposto titolo sul box
     Ext.getCmp('gridSel').setTitle(ZonaSelezionata[1]);
-    var i;
-    for (i = 0; i < myDataScenario.length && myDataScenario[i]["zona_id"] <= zona; i++) {
-        if (myDataScenario[i]["zona_id"] == zona)
-            myDataBox.push(myDataScenario[i]);
-    }
+    myDataBox = [];
     Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+    //scorro tutto lo scenario e copio nell'array del box solo quei terroritori con la zona desiderata
+
+    var i;
+
+    console.log(myDataScenario);
+
+    for (i = 0; i < myDataScenario.length && myDataScenario[i]["nome"] <= NomeZona; i++) {
+        if (myDataScenario[i]["nome"] == NomeZona) {
+            myDataBox.push(myDataScenario[i]);
+        }
+    }
+
+    //carico il box
+    Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+}
+
+/**
+ * funzione che carica nel box le zone dello scenario
+ *
+ *
+ * @param numero scenario
+ */
+
+function LoadZoneInZA(scenario){
+
+	//Ext.getCmp('zoneSel').setLoading(true,true);
+
+	Ext.Ajax.request({
+		waitMsg : 'wait...',
+		url : 'http://' + constants.ip + constants.root + constants.servlet,
+		params : {
+			task : 'PrelevaZone',
+			scenario : scenario
+		},
+		callback: function(opt,success, response) {
+			var query  = Ext.JSON.decode(response.responseText);
+      for(var x = 0; x <query.length; x++) {
+				var r = {
+						color: query[x].colore.toString(),
+						zona: query[x].nome,
+						fid: query[x].zona_id,
+						agente: query[x].nome_utente,
+						space: ""
+				};
+				myDataZone.push(r);
+
+			}
+      //carica dati nella zona (verra selzionata ultima caricata)
+      Ext.getCmp('zoneSel').getStore().loadData(myDataZone, false);
+
+      //carico paramentri zona da selezionare
+      var zona_temp = myDataZone[myDataZone.length-1];
+      ZonaSelezionata=new Array(zona_temp.fid,zona_temp.zona,zona_temp.color);
+      //seleziono zona
+      zone.getSelectionModel().select(store_zone_selected.getAt(store_zone_selected.getCount()-1));
+      //carico zona
+      //LoadZonaInBox(ZonaSelezionata[1]);
+
+			addZone();
+		}
+	});
 }

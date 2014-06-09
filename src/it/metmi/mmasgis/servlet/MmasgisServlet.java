@@ -78,6 +78,9 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		taskActions.put("getNodes", new NodeTask());
 		taskActions.put("getSigla", new SiglaTask());
 		taskActions.put("getFid", new FidTask());
+		taskActions.put("getScenario", new ScenarioTask());
+		taskActions.put("getFigli", new GetFigliTask());
+
 		// DOPO SELEZIONE AREA EFFETTUA LA RICERCA DEI PUNTI VENDITA
 		taskActions.put("paging", new ListTask());
 		// CLASSI E VALORI
