@@ -3,7 +3,7 @@ var constants = {
 	//ip: "gis.di.unimi.it:8080/",
 	//ip:"159.149.178.105:8080/",				//solo per VirtualBox
 	//ip:"localhost:8080/",
-	ip:"192.168.1.10:8080/",
+	ip:"159.149.147.81:8080/",
 	root: "mmasgis/",
 	//root: "gis/",
 	servlet : "MmasgisServlet"

@@ -316,9 +316,9 @@ function getSigla(codice, tipo, nome, fid) {
  * @param
  */
 
-function fromNomiToFid(nome, codice) {
+function fromNomiToFid(paramNome, codice) {
 
-    nome = nome.substring(0, 3);
+    var nome = paramNome.substring(0, 3);
     var fid = null;
 
     switch (nome) {
@@ -1175,17 +1175,37 @@ function Disgrega(btn) {
 function getChildren(fid, requestFid) {
     //fid territorio di grosso da rompere
     //requestFid la feature richiedendente
+	
 
 
     var layerReq = (fromFidToNomi(requestFid.fid)).tipo;
     var codReq = requestFid.fid.split(".");
     codReq = parseInt(codReq[1]) - 1;
+    
+    var layerDest = fromFidToNomi(fid).tipo;
+    var codDest = fid.split(".");
+    codDest = parseInt(codDest[1]) - 1;
+    
+    console.log();
+    
+    console.log("Territorio figlio");
+    console.log(requestFid);
+    console.log(layerReq);
+    console.log(codReq);
+    console.log("Territorio padre");
+    console.log(fid);
+    console.log(layerDest);
+    console.log(codDest)
+
+
+
+//    Console.log("Territorio PADRE");
+//    Console.log(fid);
+//    Console.log("Territorio figlio");
+//    Console.log(requestFid);
 
     //ottengo nome layer da frammentare
-    var layerDest = fromFidToNomi(fid);
-    layerDest = layerDest.tipo;
-    var codice = fid.split(".");
-    codice = parseInt(codice[1]) - 1;
+   
 
     var cdata;
 
@@ -1194,14 +1214,21 @@ function getChildren(fid, requestFid) {
         url: 'http://' + constants.ip + constants.root + constants.servlet,
         params: {
             task: 'getFigli',
-            cod: codice,
+            cod: codDest,
             layer: layerDest,
             codChiamante: codReq,
             layerChiamante: layerReq
         },
         callback: function (opt, success, response) {
             cdata = Ext.JSON.decode(response.responseText);
+        	console.log("INIZIO CICLO FIGLI");
             for (i in cdata) {
+            	
+            	if (cdata[i].layer==null)
+            		break;
+            	console.log(cdata[i].layer);
+            	console.log(cdata[i].codice);
+            	
                 fid = fromNomiToFid(cdata[i].layer, cdata[i].codice);
                 var type = fid.split(".");
 
@@ -1220,6 +1247,8 @@ function getChildren(fid, requestFid) {
                 });
 
             }
+        	console.log("FINE CICLO FIGLI");
+
 
             //aggiunta della fid request
             requestFid.style = {
@@ -1259,6 +1288,8 @@ function getChildren(fid, requestFid) {
 
 // GESTORE DELL EVENTO FEATURE SELECTED
 function featureselectedFunction(e) {
+	
+	console.debug("AAA");
 
     //controlla che la feature sia sia figlia di qualcuno o padre di qualcuno...
     var temp = addToTree(e.feature);
@@ -1305,7 +1336,24 @@ function featureselectedFunction(e) {
         });
     }
 
+    
+    
+    //TEST se IE11su win 8
+    if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
+    	console.debug("IE11");
+    	if (selectionControl.protocol.featureType=="reg2011_g")
+    		showRegioni();
+    	if (selectionControl.protocol.featureType=="prov2011_g")
+    		showProvince();
+    	if (selectionControl.protocol.featureType=="com2011_g")
+    		showComuni();
+    	if (selectionControl.protocol.featureType=="CapCR2006")
+    		showCap();
+    		
+    	
 
+    }
+    
 }
 
 

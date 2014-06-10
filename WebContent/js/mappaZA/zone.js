@@ -50,7 +50,7 @@ var store_zone_selected = Ext.create('Ext.data.ArrayStore', {
 			}
 
 			//seleziona ultima zona caricata
-			//zone.getSelectionModel().select(store_zone_selected.getAt(store_zone_selected.getCount()-1));
+			zone.getSelectionModel().select(store_zone_selected.getAt(store_zone_selected.getCount()-1));
 
 		},
 		remove: function () {
