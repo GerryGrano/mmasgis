@@ -63,8 +63,8 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 	<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all-gray.css">
 	<script src="js/const.js"></script>
 	<script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
-   	<script src="http://openlayers.org/api/OpenLayers.js"></script>
-    <!--  	<script src="js/openlayers/OpenLayers.js"> </script> -->
+   	<!--<script src="http://openlayers.org/api/OpenLayers.js"> </script>-->
+    <script src="js/openlayers/OpenLayers.js"> </script> 
 	<script type="text/javascript"> 
 		var user_id = '<%=user_id%>';
 		var username = '<%=username%>';
