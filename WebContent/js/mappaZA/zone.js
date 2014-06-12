@@ -194,13 +194,13 @@ zone = Ext.create('Ext.grid.Panel', {
 				icon : 'img/del2.png', // Use a URL in the icon config
 				tooltip : 'Elimina questa zona',
 				handler: function(grid, rowIndex, colIndex) {
-					//elimo zona dalla griglia
+					//elimino zona da grid, myDataZone
+					//e territori da myDataScenario e sulla mappa
 					var rec = grid.getStore().getAt(rowIndex);
-					//elimino territori della zona cancellata
-					unselectFeaturesByZone(rec.data.zona);
-					//elimino la zonaconsole.log(myDataZone);
+					console.log(rec);
 					myDataZone.splice(rowIndex, 1);
 					grid.getStore().removeAt(rowIndex);
+					unselectFeaturesByZone(rec.data.zona);
 				}
 			}]
 		}]

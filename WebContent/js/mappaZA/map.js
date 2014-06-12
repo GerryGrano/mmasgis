@@ -231,7 +231,7 @@ Ext.onReady(function () {
         protocol: OpenLayers.Protocol.WFS.fromWMSLayer(regioni),
         box: true,
         toggle: true,
-        clickout: true,
+        clickout: false,
 
         // multipleKey: "shiftKey",
         toggleKey: "ctrlKey"
@@ -245,16 +245,30 @@ Ext.onReady(function () {
 
     selectionControl.events.register("featureunselected", this, function (e) {
 
-        //rimuove il territorio dalla struttura "ITALIA"
-        removeToTree(e.feature);
-        //rimuovi feature solo dalla mappa
-        select.removeFeatures([e.feature]);
-        /**ottimizzaione:
-         *se ho cliccato il pulsante "deselect all"
-         *non ce bisogno di rimuovere la singola feture
-         **/
-        if (deseleziona_tutto == 0)
-            removeFeaturesFromGrid(e.feature.fid);
+    	//rimuove il territorio dalla struttura "ITALIA"
+    	removeToTree(e.feature);
+    	//rimuovi feature solo dalla mappa
+    	select.removeFeatures([e.feature]);
+    	/**ottimizzaione:
+    	 *se ho cliccato il pulsante "deselect all"
+    	 *non ce bisogno di rimuovere la singola feture
+    	 **/
+    	if (deseleziona_tutto == 0)
+    		removeFeaturesFromGrid(e.feature.fid);
+
+
+    	//Soluzione BUG IE11
+    	if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
+    		selectButtonClicked();
+    		if (selectionControl.protocol.featureType=="reg2011_g")
+    			showRegioni();
+    		if (selectionControl.protocol.featureType=="prov2011_g")
+    			showProvince();
+    		if (selectionControl.protocol.featureType=="com2011_g")
+    			showComuni();
+    		if (selectionControl.protocol.featureType=="CapCR2006")
+    			showCap();
+    	}
 
     });
 
@@ -459,7 +473,7 @@ function addFeaturesToGrid(feature) {
     };
     myDataBox.push(data);
     myDataScenario.push(data);
-    myDataScenario.sort(orderByZona);
+    myDataScenario.sort(orderByNomeZona);
     Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
 
 }
@@ -616,6 +630,9 @@ function showFeatures(database, custom) {
  * DESELEZIONA Zona dalla mappe e ricarica box
  */
 function unselectFeaturesByZone(NomeZona) {
+	console.log("unselectFeaturesByZone");
+	console.log(NomeZona);
+
     var fid;
     //scorro tutto lo scenario
     var i;
@@ -1289,8 +1306,6 @@ function getChildren(fid, requestFid) {
 // GESTORE DELL EVENTO FEATURE SELECTED
 function featureselectedFunction(e) {
 	
-	console.debug("AAA");
-
     //controlla che la feature sia sia figlia di qualcuno o padre di qualcuno...
     var temp = addToTree(e.feature);
 
@@ -1338,9 +1353,9 @@ function featureselectedFunction(e) {
 
     
     
-    //TEST se IE11su win 8
+    //Soluzione BUG IE11
     if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
-    	console.debug("IE11");
+    	selectButtonClicked();
     	if (selectionControl.protocol.featureType=="reg2011_g")
     		showRegioni();
     	if (selectionControl.protocol.featureType=="prov2011_g")
@@ -1349,9 +1364,6 @@ function featureselectedFunction(e) {
     		showComuni();
     	if (selectionControl.protocol.featureType=="CapCR2006")
     		showCap();
-    		
-    	
-
     }
     
 }

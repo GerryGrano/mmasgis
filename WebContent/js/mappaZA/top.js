@@ -329,8 +329,7 @@ function showCap() {
 
 function zoneAnalysis() {
 
-	if (Ext.getCmp('zone_analysis_panel').isVisible()==false)
-     unselectFeatures();
+	unselectFeatures();
 
 	panelZA = Ext.getCmp('zone_analysis_panel');
 	scenarioAp = Ext.getCmp('scenarioAp');
@@ -344,11 +343,13 @@ function zoneAnalysis() {
 						return;
 					}
 					else if(answ === 'no'){
-						closeZA(panelZA, scenarioAp);
+						closeZA(panelZA, scenarioAp)
+						enablesZAcomponent();;
 					}
 					else if(answ === 'yes'){
 						// inserire funzione di salvataggio su file
 						closeZA(panelZA, scenarioAp);
+						enablesZAcomponent();
 					}
 				});
 			}
@@ -439,6 +440,7 @@ function logout() {
 * DESELEZIONA TUTTO
 */
 function unselectFeatures() {
+
 
   Ext.getCmp('gridSel').setTitle("Territori selezionati");
   //flag tasto deseleziona tutto = 1
