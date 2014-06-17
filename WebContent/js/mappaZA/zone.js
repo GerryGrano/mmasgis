@@ -40,7 +40,7 @@ var store_zone_selected = Ext.create('Ext.data.ArrayStore', {
 	listeners: {
 		datachanged: function () {
 			//quando cambiano i dati nel box zone
-			//se è non ce nessuna zona non fai nulla
+			//se �� non ce nessuna zona non fai nulla
 			if (this.getCount() < 1)
 				return;
 
@@ -376,6 +376,28 @@ function saveZone() {
 		});
 	}
 }
+
+
+
+/**
+*
+* funzione che esporta la zona in un file
+*/
+function exportScenario(box) {
+
+
+
+	var ob1 = JSON.stringify(box);
+
+	var f = document.getElementById('txt');
+	f.action = 'http://' + constants.ip + constants.root + constants.servlet;
+	f.task.value = 'text';
+	f.box.value = ob1;
+	f.filename.value = "Scenario";
+	f.submit();
+
+}
+
 
 /**
  *

@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 
 /**
  * Classe che si occupa di gestire il login dell'utente
@@ -27,7 +30,7 @@ public class LoginTask extends Task {
 
 	/**
 	 * Interroga il database e se username e password sono corretti
-	 * crea una nuova sessione contenente lo username, un flag che indica se l'utente è admin, 
+	 * crea una nuova sessione contenente lo username, un flag che indica se l'utente �� admin, 
 	 * e l'elenco dei censimenti autorizzati, e poi effettua redirect alla index. 
 	 * Se invece esiste una sessione ancora valida, effettua direttamente
 	 * il redirect alla pagina index.
@@ -51,9 +54,10 @@ public class LoginTask extends Task {
 			String username = request.getParameter("username");
 			String user_id = request.getParameter("user_id");
 			
-			//se la sessione non è valida oppure utente o password non corrispondono a quelli della sessione
+
+			//se la sessione non �� valida oppure utente o password non corrispondono a quelli della sessione
 			if(session.getAttribute("username")==null || !(session.getAttribute("username").equals(username) || session.getAttribute("user_id").equals(user_id))) {
-				
+
 				//autentico utente impostando user e id nella nuova sessione
 				aut = autenticaUtente(request, session);
 				
@@ -93,13 +97,19 @@ public class LoginTask extends Task {
 		int r = 0;
 		
 		if (db.connetti()) {
+			
 			String username = request.getParameter("username");
 			String user_id = request.getParameter("user_id");
 			// TODO: mettere apici singoli nella query in Const: '%s'
 			String query = String.format(Const.queryLogin, user_id, "'"+username+"'");
+			System.out.println("oOOOOOOO");
+
+			System.out.println(query);
 			Vector<String[]> result = db.eseguiQuery(query);	
 			
+
 			if (result.size() > 0) {
+
 				// se la query ha risultati creo la sessione contenente lo username
 				String[] s = result.firstElement();
 				
@@ -108,6 +118,8 @@ public class LoginTask extends Task {
 				session.setAttribute("user_id", s[2]);
 				session.setAttribute("username", s[1]);
 				session.setAttribute("is_admin", s[0]);
+				session.setAttribute("is_admin_azienda", s[7]);
+
 				
 				String permessi = "[";	
 				for(int i=0;i<result.size();i++) {
@@ -116,6 +128,15 @@ public class LoginTask extends Task {
 				permessi = (permessi.substring(0, permessi.length()-1))+"]";
 				session.setAttribute("permessi", permessi);
 				
+				//////
+				String query_zone = "SELECT zona_id FROM mmasgisdb.zona where utente_id="+user_id;
+				String zona_id = db.eseguiQuery1Result(query_zone);
+				session.setAttribute("zona_id", zona_id);
+				String query_territori = "SELECT * FROM mmasgisdb.rel_zona_territorio where zona_id="+zona_id;
+				ArrayList<HashMap<String,String>> territori= db.eseguiQuery(query_territori, true);
+				Gson gson = new GsonBuilder().create();
+				session.setAttribute("territori",gson.toJson(territori));
+				////
 				r = 1;
 			}
 			else {
@@ -134,7 +155,7 @@ public class LoginTask extends Task {
 
 	
 	/**
-	 * Recupera il nome e l'ID del censimento su cui è stata effettuata l'offerta in K1
+	 * Recupera il nome e l'ID del censimento su cui �� stata effettuata l'offerta in K1
 	 * 
 	 * @param request
 	 * @param response

@@ -11,6 +11,12 @@ String username = (String) session.getAttribute("username");
 String permessi = (String) session.getAttribute("permessi");
 String azienda_id = (String) session.getAttribute("azienda_id");
 String ruolo_id = (String) session.getAttribute("ruolo_id");
+String territori_selettivo = (String) session.getAttribute("territori");
+String zona_id = (String) session.getAttribute("zona_id");
+String admin_azienda = (String) session.getAttribute("is_admin_azienda");
+
+
+
 
 //se ha il permesso 20 allora do la ZA
 String mapFolder=null;
@@ -75,6 +81,11 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 		var customer = "<%=customer%>";	
 		var id_offerta = '<%=id_offerta%>';
 		var id_vetrina = '<%=id_vetrina%>';
+		var zona_id = '<%=zona_id%>';
+		var territori_sele = '<%=territori_selettivo%>';
+		var admin_azienda = '<%=admin_azienda%>';
+
+
 	</script>
 	<!--<script type="text/javascript" src="extjs/adapter/ext/ext-base.js"></script>-->
 	<script type="text/javascript" src="extjs/ext-all.js"></script>

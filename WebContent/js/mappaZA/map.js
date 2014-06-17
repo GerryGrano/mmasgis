@@ -13,6 +13,13 @@ var ZonaFrammentata = [];
 var TitoloBox = null;
 //flag per ottimizzare la deselezione
 var deseleziona_tutto = 0;
+console.log(zona_id);
+var prova = Ext.JSON.decode(territori_sele);
+console.log(prova);
+console.log(admin_azienda);
+
+
+
 
 
 // oggetto colore da aggiungere alla feature prima di visualizzarla nella mappa
@@ -761,7 +768,7 @@ var italia = {
         //gia presente ritorna province sottostanti per rimuoverle
         if (regione_temp.presente == "false")
             return regione_temp;
-        //impossibile selezionare regione gìà presente
+        //impossibile selezionare regione g���� presente
     },
     removeRegioneByKey: function (key) {
 
@@ -778,7 +785,7 @@ var italia = {
         //return this.regioni.removeAtKey(key);
     },
     getProvinceByKeyRegione: function (key) {
-        //key è l'indice della regione
+        //key �� l'indice della regione
         if (this.getRegioneByKey(key) == null)
             return null;
         return this.getRegioneByKey(key).province;
@@ -1341,7 +1348,7 @@ function featureselectedFunction(e) {
     if (typeof (temp) == "object") {
         var parametro = [temp, e.feature];
         Ext.Msg.show({
-            title: 'Territori già presenti nella selezione',
+            title: 'Territori gi�� presenti nella selezione',
             height: '300 px',
             msg: 'Vuoi renderli parte di questa zona?',
             buttons: Ext.MessageBox.YESNO,
