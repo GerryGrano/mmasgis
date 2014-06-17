@@ -12,7 +12,7 @@ String permessi = (String) session.getAttribute("permessi");
 String azienda_id = (String) session.getAttribute("azienda_id");
 String ruolo_id = (String) session.getAttribute("ruolo_id");
 String territori_selettivo = (String) session.getAttribute("territori");
-String zona_id = (String) session.getAttribute("zona_id");
+String zona_id = (String) session.getAttribute("zona_id"); 
 String admin_azienda = (String) session.getAttribute("is_admin_azienda");
 
 
