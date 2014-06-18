@@ -4,6 +4,17 @@ var opacity = 1;
 var myData = [];
 var f;
 
+console.log("MAPPA SENZA ZA");
+console.log("Abilitato a vedere tutta l'italia?");
+console.log(admin_azienda);
+console.log("Zona assegnata a questo agente");
+console.log(zona_id);
+console.log("Territori della zona");
+console.log(territori_sele);
+
+
+
+
 Ext.BLANK_IMAGE_URL = './extjs/resources/themes/images/default/tree/s.gif';
 
 /**
@@ -196,11 +207,38 @@ Ext.onReady(function() {
 
 		select.addFeatures([e.feature]);
 		addFeaturesToGrid(e.feature);
+		
+		//Soluzione BUG IE11
+	    if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
+	    	selectButtonClicked();
+	    	if (selectionControl.protocol.featureType=="reg2011_g")
+	    		showRegioni();
+	    	if (selectionControl.protocol.featureType=="prov2011_g")
+	    		showProvince();
+	    	if (selectionControl.protocol.featureType=="com2011_g")
+	    		showComuni();
+	    	if (selectionControl.protocol.featureType=="CapCR2006")
+	    		showCap();
+	    }
+		
 	});
 	selectionControl.events.register("featureunselected", this, function(e) {
 
 		removeFeaturesFromGrid(e.feature.fid);
 		select.removeFeatures([e.feature]);
+		
+		//Soluzione BUG IE11
+	    if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
+	    	selectButtonClicked();
+	    	if (selectionControl.protocol.featureType=="reg2011_g")
+	    		showRegioni();
+	    	if (selectionControl.protocol.featureType=="prov2011_g")
+	    		showProvince();
+	    	if (selectionControl.protocol.featureType=="com2011_g")
+	    		showComuni();
+	    	if (selectionControl.protocol.featureType=="CapCR2006")
+	    		showCap();
+	    }
 
 	});
 

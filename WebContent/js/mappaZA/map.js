@@ -582,25 +582,29 @@ function removeFeaturesFromGrid(featureFid) {
  * @param custom
  */
 function showFeatures(database, custom) {
-    var f = document.getElementById('showFeatures');
+    var f = document.getElementById('showFeatures'); 
     r = 0;
 
-    for (feature in selectionControl.features) {
-        r++;
-        feature_id = selectionControl.features[feature].fid;
-        fid = feature_id.split(".");
-
-        if (fid[0] == "reg2011_g") {
-            f.reg.value = f.reg.value + selectionControl.features[feature].attributes['COD_REG'] + ",";
-        } else if (fid[0] == "prov2011_g") {
-            f.pro.value = f.pro.value + selectionControl.features[feature].attributes['COD_PRO'] + ",";
-        } else if (fid[0] == "com2011_g") {
-            f.com.value = f.com.value + selectionControl.features[feature].attributes['PRO_COM'] + ",";
-        } else if (fid[0] == "CapCR2006") {
-            f.cap.value = f.cap.value + selectionControl.features[feature].attributes['nome'] + ",";
-        }
+    for (feature in myDataBox){
+    	r++;
+    	var type = myDataBox[feature].tabella_territorio;
+    	var id = myDataBox[feature].tc_territorio_id;
+    	
+    	if (type.substring(0,3).toLowerCase() == "reg") {
+    		f.reg.value = f.reg.value + id + ",";
+    	}
+    	if (type.substring(0,3).toLowerCase() == "pro") {
+    		f.pro.value = f.pro.value + id + ",";
+    	}
+    	if (type.substring(0,3).toLowerCase() == "com") {
+    		f.com.value = f.com.value + id + ",";
+    	}
+    	if (type.substring(0,3).toLowerCase() == "cap") {
+    		f.cap.value = f.cap.value + id + ",";
+    	}
+ 	
     }
-
+    
     if (r > 0) {
         f.reg.value = f.reg.value.substring(0, f.reg.value.length - 1);
         f.pro.value = f.pro.value.substring(0, f.pro.value.length - 1);
