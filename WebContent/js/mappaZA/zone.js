@@ -377,6 +377,24 @@ function saveZone() {
 	}
 }
 
+
+/**
+ *
+ * funzione che esporta la zona in un file
+ */
+function exportScenario(box) {
+	
+	var ob1 = JSON.stringify(box);
+
+	var f = document.getElementById('txt');
+	f.action = 'http://' + constants.ip + constants.root + constants.servlet;
+	f.task.value = 'text';
+	f.box.value = ob1;
+	f.filename.value = "Scenario";
+	f.submit();
+
+}
+
 /**
  *
  * funzione che esporta la zona in un file

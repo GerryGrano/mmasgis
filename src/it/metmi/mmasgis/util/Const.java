@@ -83,8 +83,8 @@ public class Const {
 	 * JOIN permesso prm ON rrp.permesso_id = prm.permesso_id WHERE utn.utente_id = 1;
 	 * </code>
 	 */
-	public static String queryLogin = "SELECT utn.amministratore, utn.nome_utente, utn.utente_id, utn.azienda_id, utn.ruolo_id, prm.nome, prm.permesso_id FROM utente utn "
-			+ "JOIN ruolo rl ON utn.ruolo_id = rl.ruolo_id "
+	public static String queryLogin = "SELECT utn.amministratore, utn.nome_utente, utn.utente_id, utn.azienda_id, utn.ruolo_id, prm.nome, prm.permesso_id,utn.admin_azienda FROM utente utn "
+  			+ "JOIN ruolo rl ON utn.ruolo_id = rl.ruolo_id "
 			+ "JOIN rel_ruolo_permesso rrp ON rl.ruolo_id = rrp.ruolo_id "
 			+ "JOIN permesso prm ON rrp.permesso_id = prm.permesso_id WHERE utn.utente_id = %s AND utn.nome_utente = %s ";
 

@@ -73,7 +73,10 @@ scenario = Ext.create('Ext.grid.Panel', {
 		},{
 			xtype : 'button',
 			icon : 'img/save16x16.png',
-			id : 'saveScenario'
+			id : 'saveScenario',
+			handler : function(){
+				exportScenario(myDataScenario);
+			}
 		},{
 			xtype : 'button',
 			icon : 'img/modify_small.png',
