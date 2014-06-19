@@ -329,7 +329,7 @@ function showCap() {
 
 function zoneAnalysis() {
 
-	unselectFeatures();
+	
 
 	panelZA = Ext.getCmp('zone_analysis_panel');
 	scenarioAp = Ext.getCmp('scenarioAp');
@@ -343,23 +343,23 @@ function zoneAnalysis() {
 						return;
 					}
 					else if(answ === 'no'){
-						closeZA(panelZA, scenarioAp)
-						enablesZAcomponent();;
+						closeZA(panelZA, scenarioAp);
+						
 					}
 					else if(answ === 'yes'){
 						// inserire funzione di salvataggio su file
 						closeZA(panelZA, scenarioAp);
-						enablesZAcomponent();
+						
 					}
 				});
 			}
 			else{
 				closeZA(panelZA, scenarioAp);
-				enablesZAcomponent();
+				
 			}
 		}
 		else {
-			disableZAcomponent();
+			
 			openZA(panelZA, scenarioAp);
 		}
 	}
@@ -367,14 +367,42 @@ function zoneAnalysis() {
 
 // Apertura del pannello Zone Analysis
 function openZA(panelZA, scenarioAp){
+	//salvo admin e lo modifico se == 0 per poter deselezionare tutto
+	if(admin_azienda==0){
+		select.removeAllFeatures();
+		selectionControl.unselectAll();
+		myDataBox = [];
+		myDataScenario = [];
+		Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+		italia.regioni=new Ext.util.HashMap();
+	}else
+		unselectFeatures();
+	
 	Ext.getCmp('simplestbl').add(panelZA);
 	panelZA.add(scenarioAp);
 	panelZA.show();
 	map.updateSize();
+	disableZAcomponent();
+	
+	
 }
 
 // Chiusura del pannello Zone Analysis
 function closeZA(panelZA, scenarioAp){
+	
+	if(admin_azienda==0){
+		select.removeAllFeatures();
+		selectionControl.unselectAll();
+		myDataBox = [];
+		myDataScenario = [];
+		Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+		italia.regioni=new Ext.util.HashMap();
+	}else{
+		unselectFeatures();
+
+	}
+	
+	
 	panelZA.hide();
 	panelZA.remove(scenarioAp, false);
 	if(typeof zoneSel != 'undefined'){
@@ -391,6 +419,14 @@ function closeZA(panelZA, scenarioAp){
 	numZ = 1;
 
 	map.updateSize();
+	
+	enablesZAcomponent();
+	
+	//riattivare le zone di propria competenza
+	console.log("riattivo propria zona");
+	 if (admin_azienda==0)
+	    	caricaFiltroZone(territori_sele);
+
 }
 
 /**
@@ -437,28 +473,28 @@ function logout() {
 
 
 /**
-* DESELEZIONA TUTTO
-*/
+ * DESELEZIONA TUTTO
+ */
 function unselectFeatures() {
+	
 
+	Ext.getCmp('gridSel').setTitle("Territori selezionati");
+	//flag tasto deseleziona tutto = 1
+	deseleziona_tutto=1;
+	tot_territori_da_caricare = 0;
+	tot_territori_caricati=0;
+	selectionControl.unselectAll();
+	myData = [];
+	myDataZone = [];
+	myDataBox = [];
+	myDataScenario = [];
+	Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+	Ext.getCmp('zoneSel').getStore().loadData(myDataZone, false);
 
-  Ext.getCmp('gridSel').setTitle("Territori selezionati");
-  //flag tasto deseleziona tutto = 1
-  deseleziona_tutto=1;
-  tot_territori_da_caricare = 0;
-  tot_territori_caricati=0;
-  selectionControl.unselectAll();
-  myData = [];
-  myDataZone = [];
-  myDataBox = [];
-  myDataScenario = [];
-  Ext.getCmp('gridSel').getStore().loadData(myData, false);
-  Ext.getCmp('zoneSel').getStore().loadData(myDataZone, false);
-
-  //flag tasto deseleziona tutto = 0
-  deseleziona_tutto=0;
-  //se la zona analisi è aperta allora
-  if (Ext.getCmp('zone_analysis_panel').isVisible()){
+	//flag tasto deseleziona tutto = 0
+	deseleziona_tutto=0;
+	//se la zona analisi è aperta allora
+	if (Ext.getCmp('zone_analysis_panel').isVisible()){
 		disableZAcomponent();
 	}
 

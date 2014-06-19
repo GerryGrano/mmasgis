@@ -11,6 +11,7 @@ console.log("Zona assegnata a questo agente");
 console.log(zona_id);
 console.log("Territori della zona");
 console.log(territori_sele);
+territori_sele=Ext.JSON.decode(territori_sele);
 
 
 
@@ -204,7 +205,7 @@ Ext.onReady(function() {
 	// REGISTRO EVENTI PER SELEZIONARE CON CLICK IN E DESELEZIONARE CON
 	// CLICK OUT
 	selectionControl.events.register("featureselected", this, function(e) {
-
+		/*
 		select.addFeatures([e.feature]);
 		addFeaturesToGrid(e.feature);
 		
@@ -219,11 +220,11 @@ Ext.onReady(function() {
 	    		showComuni();
 	    	if (selectionControl.protocol.featureType=="CapCR2006")
 	    		showCap();
-	    }
+	    }*/
 		
 	});
 	selectionControl.events.register("featureunselected", this, function(e) {
-
+		/*
 		removeFeaturesFromGrid(e.feature.fid);
 		select.removeFeatures([e.feature]);
 		
@@ -239,6 +240,7 @@ Ext.onReady(function() {
 	    	if (selectionControl.protocol.featureType=="CapCR2006")
 	    		showCap();
 	    }
+	    */
 
 	});
 
@@ -249,6 +251,10 @@ Ext.onReady(function() {
 	map.setCenter(point.transform(proj, map.getProjectionObject()), 6);
 	Ext.getCmp('select_button').toggle(true);
 	Ext.getCmp('reg_button').toggle(true);
+	
+	//carucico territori filtro
+	caricaFiltroZone(territori_sele);
+	
 }); // eo function onReady
 
 
@@ -427,4 +433,112 @@ function showFeatures(database, custom/*, results*/) {
 	}
 
 };
+
+
+
+//funzione che carica i territori filtro
+function caricaFiltroZone(territori){
+	console.log("caricaFiltroZone");
+	console.debug(territori);
+
+	var i;
+	for (i = 0; i < territori.length; i++) {
+		var fid = null;
+		var type = null;
+		var layer = territori[i].tabella_territorio;
+		var cod = territori[i].tc_territorio_id;
+
+		switch (layer) {
+		case "regioni" :
+			fid = "reg2011_g." + cod;
+			type = "reg2011_g";
+			break;
+		case "province" :
+			fid = "prov2011_g." + cod;
+			type = "prov2011_g";
+			break;
+		case "comuni" :
+			fid = "com2011_g." + cod;
+			type = "com2011_g";
+			break;
+		case "Cap" :
+			fid = "CapCR2006." + cod;
+			type = "CapCR2006";
+			break;
+		}
+
+		var request = OpenLayers.Request.GET({
+			url : url,
+			scope : colore_maschera,
+			callback : visualizzaFiltro,
+			params : {
+				REQUEST : "GetFeature",
+				srsName : "EPSG:900913",
+				SERVICE : "WFS",
+				VERSION : "1.1.0",
+				TYPENAME : "mmasgis:" + type,
+				featureID : fid
+			}
+		});
+
+	}
+	
+	
+	
+}
+
+
+//funzione che visualizza sul layer vettoriale la risposta di GeoServer
+function visualizzaFiltro(request) {
+	console.log("visualizzaFiltro");
+
+	var gml = new OpenLayers.Format.GML.v3();
+	gml.extractAttributes = true;
+	var features = gml.read(request.responseText);
+
+
+	//estraggo colore
+	//this sarebbe il parametro scope della chiamata al geoserver
+	var colore = this;
+
+	var stileColore=null;
+	//copia feature dalla risposta di geoserver
+	var feat=features[0];
+	//aggiungo feature all albero
+	//addToTree(feat);
+
+
+	//se nel parametri ce il colore...crea stile ed aggiungilo alla feature
+	if (colore!=null){
+		stileColore = {
+				strokeColor : '#ffffff',
+				fillColor : '#'+colore,
+				// fillColor : '#3FF87F',
+				fillOpacity : 0.65,
+				strokeWidth : 0.7,
+				cursor : 'crosshair'
+		};
+		feat.style=stileColore;
+	}
+
+	//aggiungi feature alla box
+	addFeaturesToGrid(feat);
+	
+	//aggiungi alla mappa
+	if (contains(select.features, features[0]) == false) {
+		//aggiungi feature al layer select
+		select.addFeatures(feat);
+	}
+
+	//aggiungi il controllo
+	if (hash_contains(selectionControl.features, features[0]) == false) {
+		selectionControl.features[features[0].fid] = features[0];
+	}
+
+
+
+}
+
+
+
 //EOF

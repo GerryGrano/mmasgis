@@ -13,6 +13,7 @@ String azienda_id = (String) session.getAttribute("azienda_id");
 String ruolo_id = (String) session.getAttribute("ruolo_id");
 String territori_selettivo = (String) session.getAttribute("territori");
 String zona_id = (String) session.getAttribute("zona_id"); 
+String colore = (String) session.getAttribute("colore"); 
 String admin_azienda = (String) session.getAttribute("is_admin_azienda");
 
 
@@ -82,6 +83,7 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 		var id_offerta = '<%=id_offerta%>';
 		var id_vetrina = '<%=id_vetrina%>';
 		var zona_id = '<%=zona_id%>';
+		var colore_maschera = '<%=colore%>';
 		var territori_sele = '<%=territori_selettivo%>';
 		var admin_azienda = '<%=admin_azienda%>';
 

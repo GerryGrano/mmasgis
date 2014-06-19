@@ -13,10 +13,15 @@ var ZonaFrammentata = [];
 var TitoloBox = null;
 //flag per ottimizzare la deselezione
 var deseleziona_tutto = 0;
-console.log(zona_id);
-var prova = Ext.JSON.decode(territori_sele);
-console.log(prova);
+
+console.log("MAPPA con ZA");
+console.log("Abilitato a vedere tutta l'italia?");
 console.log(admin_azienda);
+console.log("Zona assegnata a questo agente");
+console.log(zona_id);
+console.log("Territori della zona");
+console.log(territori_sele);
+territori_sele=Ext.JSON.decode(territori_sele);
 
 
 
@@ -251,18 +256,8 @@ Ext.onReady(function () {
 
 
     selectionControl.events.register("featureunselected", this, function (e) {
-
-    	//rimuove il territorio dalla struttura "ITALIA"
-    	removeToTree(e.feature);
-    	//rimuovi feature solo dalla mappa
-    	select.removeFeatures([e.feature]);
-    	/**ottimizzaione:
-    	 *se ho cliccato il pulsante "deselect all"
-    	 *non ce bisogno di rimuovere la singola feture
-    	 **/
-    	if (deseleziona_tutto == 0)
-    		removeFeaturesFromGrid(e.feature.fid);
-
+    	
+    	console.log("unselect event");
 
     	//Soluzione BUG IE11
     	if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
@@ -276,6 +271,29 @@ Ext.onReady(function () {
     		if (selectionControl.protocol.featureType=="CapCR2006")
     			showCap();
     	}
+    	
+    	
+    	
+    	//se non sei admin azienda e non sei in ZA allora disabilita
+    	if (admin_azienda==0 && Ext.getCmp('zone_analysis_panel').isVisible()==false){
+    		//alert("Territori non Assegnati alla tua zona");
+    		return;
+    	}
+    	
+    	//rimuove il territorio dalla struttura "ITALIA"
+    	if (e.feature.data!=null)
+    		removeToTree(e.feature);
+    	//rimuovi feature solo dalla mappa
+    	select.removeFeatures([e.feature]);
+    	/**ottimizzaione:
+    	 *se ho cliccato il pulsante "deselect all"
+    	 *non ce bisogno di rimuovere la singola feture
+    	 **/
+    	if (deseleziona_tutto == 0)
+    		removeFeaturesFromGrid(e.feature.fid);
+
+
+    	
 
     });
 
@@ -286,6 +304,12 @@ Ext.onReady(function () {
     map.setCenter(point.transform(proj, map.getProjectionObject()), 6);
     Ext.getCmp('select_button').toggle(true);
     Ext.getCmp('reg_button').toggle(true);
+    
+    if (admin_azienda==0)
+    	caricaFiltroZone(territori_sele);
+    	
+    	
+    
 }); // eo function onReady
 
 
@@ -1226,13 +1250,6 @@ function getChildren(fid, requestFid) {
     console.log(codDest)
 
 
-
-//    Console.log("Territorio PADRE");
-//    Console.log(fid);
-//    Console.log("Territorio figlio");
-//    Console.log(requestFid);
-
-    //ottengo nome layer da frammentare
    
 
     var cdata;
@@ -1317,6 +1334,38 @@ function getChildren(fid, requestFid) {
 // GESTORE DELL EVENTO FEATURE SELECTED
 function featureselectedFunction(e) {
 	
+	 //Soluzione BUG IE11
+    if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
+    	selectButtonClicked();
+    	if (selectionControl.protocol.featureType=="reg2011_g")
+    		showRegioni();
+    	if (selectionControl.protocol.featureType=="prov2011_g")
+    		showProvince();
+    	if (selectionControl.protocol.featureType=="com2011_g")
+    		showComuni();
+    	if (selectionControl.protocol.featureType=="CapCR2006")
+    		showCap();
+    }
+	
+	console.log("featureselectedFunction");
+	
+	//se non sei admin azienda e non sei in ZA alla disabilita
+	if (admin_azienda==0 && Ext.getCmp('zone_analysis_panel').isVisible()==false){
+		//alert("Territori non Assegnati alla tua zona");
+		return;
+	}
+		
+	//prima di aggiungere il territorio devo controllare che faccia parte della maschera
+	if (admin_azienda==0){
+		if (checkFiltro(e.feature)==0){
+			alert("Territorio non assegnato alla tua zona");
+			return;
+		}
+	}
+		
+		
+	
+	
     //controlla che la feature sia sia figlia di qualcuno o padre di qualcuno...
     var temp = addToTree(e.feature);
 
@@ -1364,18 +1413,7 @@ function featureselectedFunction(e) {
 
     
     
-    //Soluzione BUG IE11
-    if ((navigator.userAgent).indexOf("Trident/7.0")> -1 && (navigator.userAgent).indexOf("like Gecko")> -1){
-    	selectButtonClicked();
-    	if (selectionControl.protocol.featureType=="reg2011_g")
-    		showRegioni();
-    	if (selectionControl.protocol.featureType=="prov2011_g")
-    		showProvince();
-    	if (selectionControl.protocol.featureType=="com2011_g")
-    		showComuni();
-    	if (selectionControl.protocol.featureType=="CapCR2006")
-    		showCap();
-    }
+   
     
 }
 
@@ -1420,5 +1458,600 @@ function disableZAcomponent() {
     Ext.getCmp('deselect_button').disable();
     Ext.getCmp('usermng_button').disable();
 }
+
+
+/*****************************************/
+/*********ACCESSO SELETTIVO**************/
+
+//funzione che carica i territori filtro su area 
+function caricaFiltroZone(territori){
+	console.debug(territori);
+
+	var i;
+	for (i = 0; i < territori.length; i++) {
+		var fid = null;
+		var type = null;
+		var layer = territori[i].tabella_territorio;
+		var cod = territori[i].tc_territorio_id;
+
+		switch (layer) {
+		case "regioni" :
+			fid = "reg2011_g." + cod;  
+			type = "reg2011_g";
+			break;
+		case "province" :
+			fid = "prov2011_g." + cod;
+			type = "prov2011_g";
+			break;
+		case "comuni" :
+			fid = "com2011_g." + cod;
+			type = "com2011_g";
+			break;
+		case "Cap" :
+			fid = "CapCR2006." + cod;
+			type = "CapCR2006";
+			break;
+		}
+
+		var request = OpenLayers.Request.GET({
+			url : url,
+			scope : colore_maschera,
+			callback : visualizzaFiltro,
+			params : {
+				REQUEST : "GetFeature",
+				srsName : "EPSG:900913",
+				SERVICE : "WFS",
+				VERSION : "1.1.0",
+				TYPENAME : "mmasgis:" + type,
+				featureID : fid
+			}
+		});
+
+	}
+	
+	
+	
+}
+
+
+//funzione che visualizza sul layer vettoriale la risposta di GeoServer
+function visualizzaFiltro(request) {
+	console.log("visualizzaFiltro");
+
+	var gml = new OpenLayers.Format.GML.v3();
+	gml.extractAttributes = true;
+	var features = gml.read(request.responseText);
+
+
+	//estraggo colore
+	//this sarebbe il parametro scope della chiamata al geoserver
+	var colore = this;
+
+	var stileColore=null;
+	//copia feature dalla risposta di geoserver
+	var feat=features[0];
+	
+	//aggiungo feature all albero FILTRIII
+	addToFiltro(feat);
+
+
+	//se nel parametri ce il colore...crea stile ed aggiungilo alla feature
+	if (colore!=null){
+		stileColore = {
+				strokeColor : '#ffffff',
+				fillColor : '#'+colore,
+				// fillColor : '#3FF87F',
+				fillOpacity : 0.65,
+				strokeWidth : 0.7,
+				cursor : 'crosshair'
+		};
+		feat.style=stileColore;
+	}
+
+	//aggiungi feature alla box
+	addFeaturesToGrid(feat);
+	
+	//aggiungi alla mappa
+	if (contains(select.features, features[0]) == false) {
+		//aggiungi feature al layer select
+		select.addFeatures(feat);
+	}
+
+	//aggiungi il controllo
+	if (hash_contains(selectionControl.features, features[0]) == false) {
+		selectionControl.features[features[0].fid] = features[0];
+	}
+}
+
+/*************************************/
+/*********struttura italia filtro*****/
+//tree ITALIA SONO TROPPO TOP
+var filtro = {
+    regioni: new Ext.util.HashMap(),
+    getRegioni: function () {
+        return this.regioni;
+    },
+    getRegioneByKey: function (key) {
+        return this.regioni.get(key);
+    },
+    addRegioneByKeyValue: function (keyReg, value) {
+        //controllo se esiste
+        var regione_temp = this.getRegioneByKey(keyReg);
+
+        //se non essite la inserisco
+        if (regione_temp == null) {
+            regione = {
+                cod_reg: keyReg,
+                presente: value.presente,
+                fid: value.fid,
+                nome: value.nome,
+                province: new Ext.util.HashMap()
+                //getFigli : function(this){return this.province.}
+            };
+            this.regioni.add(keyReg, regione);
+            //aggiunta
+            return 0;
+        }
+        //gia presente ritorna province sottostanti per rimuoverle
+        if (regione_temp.presente == "false")
+            return regione_temp;
+        //impossibile selezionare regione g���� presente
+    },checkRegioneFilter: function (keyReg) {
+        //controllo se esiste
+        var regione_temp = this.getRegioneByKey(keyReg);
+
+        //se non essite return 0
+        if (regione_temp != null && regione_temp.presente=="true")  
+        	return 1;
+        else
+        	return 0;
+        
+    },
+    removeRegioneByKey: function (key) {
+
+        var temp = this.getRegioneByKey(key);
+        //se la regione non esiste
+        if (temp == null)
+            return;
+        //se la regione ha 0 province setta come non presente
+        if (temp.province.length > 0) {
+            return;
+        }
+        //la regione non ha province la posso rimuovere
+        this.regioni.removeAtKey(key)
+        //return this.regioni.removeAtKey(key);
+    },
+    getProvinceByKeyRegione: function (key) {
+        //key �� l'indice della regione
+        if (this.getRegioneByKey(key) == null)
+            return null;
+        return this.getRegioneByKey(key).province;
+    },
+    getProvinciaByKeyRegioneKeyProvincia: function (keyReg, KeyPro) {
+        var regione = this.getRegioneByKey(keyReg);
+        if (regione != null) {
+            return regione.province.get(KeyPro);
+        }
+        return null;
+    },
+    addProvinciaByKeyValue: function (keyPro, value) {
+
+        var regione_temp = this.getRegioneByKey(value.cod_reg);
+        if (regione_temp == null) {
+            //se regione non presente aggiungi gerarchia senza problemi
+            var param_reg = {
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addRegioneByKeyValue(value.cod_reg, param_reg);
+            regione_temp = this.getRegioneByKey(value.cod_reg);
+
+        }
+        //regione presente
+        if (regione_temp.presente == "true")
+            return regione_temp.fid;
+
+        //presente ma non selezionata
+        //aggiungo provincia
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        if (provincia_temp != null && provincia_temp.presente == "false")
+            return provincia_temp;
+
+
+
+        var provincia = {
+            cod_reg: value.cod_reg,
+            cod_pro: value.cod_pro,
+            presente: value.presente,
+            fid: value.fid,
+            nome: value.nome,
+            comuni: new Ext.util.HashMap()
+        };
+        this.getProvinceByKeyRegione(value.cod_reg).add(keyPro, provincia);
+        return 0; //padre esiste ma non selezionato..fratelli selezionati, quindi posso aggiungere
+    },
+    checkProvinciaFilter: function (keyReg,KeyPro) {
+        //controllo se esiste la regione
+        var regione_temp = this.getRegioneByKey(keyReg);
+
+        //se la regione è presente inserimento ok
+        if (regione_temp != null && regione_temp.presente=="true")  
+        	return 1;
+        
+        //controllo se esiste la provincia
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(keyReg,KeyPro);
+
+        //se la provincia è presente inserimento ok
+        if (provincia_temp != null && provincia_temp.presente=="true")  
+        	return 1;
+        else 
+        	return 0;
+         
+    },
+    removeProvinciaByKeyRegioneKeyProvincia: function (keyReg, KeyPro) {
+
+        var tempRegione = this.getRegioneByKey(keyReg);
+        //se la regione non esiste
+        if (tempRegione == null)
+            return -1;
+
+        var tempProvincia = this.getProvinciaByKeyRegioneKeyProvincia(keyReg, KeyPro);
+
+        //se la provincia non esiste
+        if (tempProvincia == null)
+            return -1;
+
+
+        //se numero comuni della provincia > 0 setta presente = false
+
+        if (tempProvincia.comuni.length > 0) {
+            return 0;
+        }
+        //provincia non ha comuni posso eliminarla
+        tempRegione.province.removeAtKey(KeyPr);
+
+
+        //rimuovi regione
+        this.removeRegioneByKey(keyReg);
+
+        return 1;
+    },
+    getComuniByKeyRegioneKeyProvicia: function (keyReg, KeyPro) {
+        //keyReg  indice della regione
+        //KeyPro indice provincia
+        if (this.getProvinciaByKeyRegioneKeyProvincia(keyReg, KeyPro) == null)
+            return null;
+        return this.getProvinciaByKeyRegioneKeyProvincia(keyReg, KeyPro).comuni;
+    },
+    getComuneByKeyRegioneKeyProviciaKeyComune: function (keyReg, KeyPro, KeyCom) {
+        //keyReg  indice della regione
+        //KeyPro indice provincia
+        //KeyCom indice provincia
+
+        var comuni = this.getComuniByKeyRegioneKeyProvicia(keyReg, KeyPro);
+        if (comuni == null)
+            return null;
+        return comuni.get(KeyCom);
+
+    },
+    addComuneByKeyValue: function (keyCom, value) {
+
+        var regione_temp = this.getRegioneByKey(value.cod_reg);
+        if (regione_temp == null) {
+            //se regione non presente aggiungi gerarchia senza problemi
+            var param_reg = {
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addRegioneByKeyValue(value.cod_reg, param_reg);
+            regione_temp = this.getRegioneByKey(value.cod_reg);
+        }
+        //regione presente
+        if (regione_temp.presente == "true")
+            return regione_temp.fid;
+
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        if (provincia_temp == null) {
+            //se provincia non presente aggiungi gerarchia senza problemi
+            var param_pro = {
+                cod_pro: value.cod_pro,
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addProvinciaByKeyValue(value.cod_pro, param_pro);
+            provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        }
+        //provincia presente
+        if (provincia_temp.presente == "true")
+            return provincia_temp.fid;
+
+        //controllo che non ci siano caps sotto di lui
+        var comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com);
+        if (comune_temp != null && comune_temp.presente == "false")
+            return comune_temp;
+
+        var param_com = {
+            cod_reg: value.cod_reg,
+            cod_pro: value.cod_pro,
+            cod_com: value.cod_com,
+            presente: value.presente,
+            fid: value.fid,
+            nome: value.nome,
+            caps: new Ext.util.HashMap()
+        };
+        this.getComuniByKeyRegioneKeyProvicia(value.cod_reg, value.cod_pro).add(value.cod_com, param_com);
+        return 0; //aggiunta tutto ok
+    },
+    checkComuneFilter: function (keyReg,KeyPro,KeyCom) {
+        //controllo se esiste la regione
+        var regione_temp = this.getRegioneByKey(keyReg);
+
+        //se la regione è presente inserimento ok
+        if (regione_temp != null && regione_temp.presente=="true")  
+        	return 1;
+        
+        //controllo se esiste la provincia
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(keyReg,KeyPro);
+
+        //se la provincia è presente inserimento ok
+        if (provincia_temp != null && provincia_temp.presente=="true")  
+        	return 1;
+        
+        //controllo se esiste il comune
+        var comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, KeyCom);
+
+        //se il comune è presente inserimento ok
+        if (comune_temp != null && comune_temp.presente=="true")  
+        	return 1;
+        else
+        	return 0; 
+    },
+    removeComuneByKeyRegioneKeyProvinciaKeyComune: function (keyReg, keyPro, keyCom) {
+
+
+        var tempProvincia = this.getProvinciaByKeyRegioneKeyProvincia(keyReg, keyPro);
+        //se la provincia non esiste
+        if (tempProvincia == null)
+            return -1;
+
+
+        var tempComune = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, keyPro, keyCom);
+        //se numero comuni della provincia > 0 setta presente = false
+        if (tempComune == null)
+            return -1;
+
+        if (tempComune.caps.length > 0) {
+            return 0;
+        }
+        //comune non ha caps posso eliminarla
+        tempProvincia.comuni.removeAtKey(keyCom);
+
+        //rimuovo provincia
+        this.removeProvinciaByKeyRegioneKeyProvincia(keyReg, keyPro);
+        return 1;
+    },
+    getCapsByKeyRegioneKeyProviciaKeyComune: function (keyReg, KeyPro, keyCom) {
+        //keyReg  indice della regione
+        //KeyPro indice provincia
+        //KeyCom indice comune
+        if (this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, keyCom) == null)
+            return null;
+        return this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, keyCom).caps;
+    },
+    getCapByKeyRegioneKeyProviciaKeyComuneKeyCap: function (keyReg, KeyPro, keyCom, KeyCap) {
+        //ritorna il comune o null
+        comune = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, keyCom);
+        if (comune != null) {
+            return comune.caps.get(KeyCap);
+        }
+        return null;
+    },
+    addCapByKeyValue: function (KeyCap, value) {
+
+        var regione_temp = this.getRegioneByKey(value.cod_reg);
+
+        if (regione_temp == null) {
+            //se regione non presente aggiungi gerarchia senza problemi
+            var param_reg = {
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addRegioneByKeyValue(value.cod_reg, param_reg);
+            regione_temp = this.getRegioneByKey(value.cod_reg);
+        }
+        //regione presente
+        if (regione_temp.presente == "true")
+            return regione_temp.fid;
+
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        if (provincia_temp == null) {
+            //se provincia non presente aggiungi gerarchia senza problemi
+            var param_pro = {
+                cod_pro: value.cod_pro,
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addProvinciaByKeyValue(value.cod_pro, param_pro);
+            provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(value.cod_reg, value.cod_pro);
+        }
+        //provincia presente
+        if (provincia_temp.presente == "true")
+            return provincia_temp.fid;
+
+        var comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com);
+        if (comune_temp == null) {
+            //se comune non presente aggiungi gerarchia senza problemi
+            var param_com = {
+                cod_com: value.cod_com,
+                cod_pro: value.cod_pro,
+                cod_reg: value.cod_reg,
+                nome: "",
+                presente: "false",
+                fid: ""
+            };
+            this.addComuneByKeyValue(value.cod_com, param_com);
+            comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com);
+        }
+        //comune presente
+        if (comune_temp.presente == "true")
+            return comune_temp.fid;
+
+        //comune presente quindi posso aggiungere senza problemi
+        var param_cap = {
+            cod_reg: value.cod_reg,
+            cod_pro: value.cod_pro,
+            cod_com: value.cod_com,
+            cod_cap: KeyCap,
+            nome: value.nome,
+            fid: value.fid
+        };
+        this.getCapsByKeyRegioneKeyProviciaKeyComune(value.cod_reg, value.cod_pro, value.cod_com).add(KeyCap, param_cap);
+        return 0;
+    },
+    checkCapFilter: function (keyReg,KeyPro,KeyCom,KeyCap) {
+        //controllo se esiste la regione
+        var regione_temp = this.getRegioneByKey(keyReg);
+        console.log("");
+        console.log(regione_temp);
+        //se la regione è presente inserimento ok
+        if (regione_temp != null && regione_temp.presente=="true")  
+        	return 1;
+        
+        //controllo se esiste la provincia
+        var provincia_temp = this.getProvinciaByKeyRegioneKeyProvincia(keyReg,KeyPro);
+
+        //se la provincia è presente inserimento ok
+        if (provincia_temp != null && provincia_temp.presente=="true")  
+        	return 1;
+        
+        //controllo se esiste il comune
+        var comune_temp = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, KeyPro, KeyCom);
+
+        //se il comune è presente inserimento ok
+        if (comune_temp != null && comune_temp.presente=="true")  
+        	return 1;
+        
+        //controllo se esiste il cap
+        var cap_temp = this.getCapByKeyRegioneKeyProviciaKeyComuneKeyCap(keyReg, KeyPro, KeyCom,KeyCap);
+
+        //se il cap è presente inserimento ok
+        if (cap_temp != null)  
+        	return 1;
+        else
+        	return 0;
+        
+        
+    },
+    removeCapByKeyRegioneKeyProvinciaKeyComuneKeyCap: function (keyReg, keyPro, keyCom, keyCap) {
+
+
+        var tempComune = this.getComuneByKeyRegioneKeyProviciaKeyComune(keyReg, keyPro, keyCom);
+        //se il comune non esiste
+        if (tempComune == null)
+            return -1;
+
+
+        var tempCap = this.getCapByKeyRegioneKeyProviciaKeyComuneKeyCap(keyReg, keyPro, keyCom, keyCap);
+        //se il cap non esiste
+        if (tempCap == null)
+            return 0;
+
+        //il cap esiste lo eliminiamo
+        tempComune.caps.removeAtKey(keyCap);
+
+
+        //rimuovo comune
+        this.removeComuneByKeyRegioneKeyProvinciaKeyComune(keyReg, keyPro, keyCom);
+        return 1;
+    }
+
+};
+
+
+/*************************************/
+/**********addToFiltro****************/
+/**
+ * Inserisce la feature nel Tree Italia
+ **/
+function addToFiltro(feature) {
+    var fid_code = feature.fid;
+    tipo = fid_code.substring(0, 3);
+
+    switch (tipo) {
+    case "reg":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            nome: feature.data.NOME_REG,
+            presente: "true",
+            fid: fid_code
+        };
+        return filtro.addRegioneByKeyValue(feature.data.COD_REG, param);
+        break;
+    case "pro":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            cod_pro: feature.data.COD_PRO,
+            nome: feature.data.NOME_PRO,
+            presente: "true",
+            fid: fid_code
+        };
+        return filtro.addProvinciaByKeyValue(feature.data.COD_PRO, param);
+        break;
+    case "com":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            cod_pro: feature.data.COD_PRO,
+            cod_com: feature.data.PRO_COM,
+            nome: feature.data.NOME_COM,
+            presente: "true",
+            fid: fid_code
+        };
+        return filtro.addComuneByKeyValue(feature.data.PRO_COM, param);
+        break;
+    case "Cap":
+        var param = {
+            cod_reg: feature.data.COD_REG,
+            cod_pro: feature.data.COD_PRO,
+            cod_com: feature.data.PRO_COM,
+            cod_cap: feature.data.nome,
+            nome: feature.data.nome1,
+            fid: fid_code
+        };
+        return filtro.addCapByKeyValue(feature.data.nome, param);
+        break;
+    }
+}
+
+
+function checkFiltro(feature) {
+    var fid_code = feature.fid;
+    tipo = fid_code.substring(0, 3);
+
+    switch (tipo) {
+    case "reg":
+        return filtro.checkRegioneFilter(feature.data.COD_REG);
+        break;
+    case "pro":
+        return filtro.checkProvinciaFilter(feature.data.COD_REG,feature.data.COD_PRO);
+        break;
+    case "com":
+        return filtro.checkComuneFilter(feature.data.COD_REG,feature.data.COD_PRO,feature.data.PRO_COM);
+        break;
+    case "Cap":
+        return filtro.checkCapFilter(feature.data.COD_REG,feature.data.COD_PRO,feature.data.PRO_COM,feature.data.COD_REG);
+        break;
+    }
+}
+
 
 //EOF

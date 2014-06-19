@@ -36,11 +36,10 @@ tree = Ext.create('Ext.tree.Panel', {
 	listeners : {
 		select: function(th, record, index, eOpts) {
 			//console.debug(record);
-			getNodes(record.raw.codice, record.raw.layer);
+			//getNodes(record.raw.codice, record.raw.layer);
 		},
 		itemclick : function(view, rec, item, index, eventObj) {
-
-			getNodes(rec.raw.codice, rec.raw.layer);
+			//getNodes(rec.raw.codice, rec.raw.layer);
 		}
 	},
 	dockedItems : [{

@@ -102,7 +102,6 @@ public class LoginTask extends Task {
 			String user_id = request.getParameter("user_id");
 			// TODO: mettere apici singoli nella query in Const: '%s'
 			String query = String.format(Const.queryLogin, user_id, "'"+username+"'");
-			System.out.println("oOOOOOOO");
 
 			System.out.println(query);
 			Vector<String[]> result = db.eseguiQuery(query);	
@@ -132,6 +131,9 @@ public class LoginTask extends Task {
 				String query_zone = "SELECT zona_id FROM mmasgisdb.zona where utente_id="+user_id;
 				String zona_id = db.eseguiQuery1Result(query_zone);
 				session.setAttribute("zona_id", zona_id);
+				String query_colore = "SELECT colore FROM mmasgisdb.zona where utente_id="+user_id;
+				String colore = db.eseguiQuery1Result(query_colore);
+				session.setAttribute("colore", colore);
 				String query_territori = "SELECT * FROM mmasgisdb.rel_zona_territorio where zona_id="+zona_id;
 				ArrayList<HashMap<String,String>> territori= db.eseguiQuery(query_territori, true);
 				Gson gson = new GsonBuilder().create();

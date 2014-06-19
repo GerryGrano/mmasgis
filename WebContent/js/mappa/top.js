@@ -82,7 +82,7 @@ toolbar = Ext.create('Ext.toolbar.Toolbar', {
 		tooltip : 'Deseleziona tutto',
 		width : 50,
 		height : 50,
-		handler : unselectFeatures,
+		//handler : unselectFeatures,
 		icon : 'img/unselect.png',
 		scale : 'medium',
 		style : 'margin:0 0 0 10px'
@@ -269,7 +269,7 @@ function showCap() {
  * DESELEZIONA TUTTO
  */
 function unselectFeatures() {
-
+	
 	selectionControl.unselectAll();
 	myData = [];
 	Ext.getCmp('gridSel').getStore().loadData(myData, false);
