@@ -82,7 +82,7 @@ toolbar = Ext.create('Ext.toolbar.Toolbar', {
 		tooltip : 'Deseleziona tutto',
 		width : 50,
 		height : 50,
-		//handler : unselectFeatures,
+		handler : unselectFeatures,
 		icon : 'img/unselect.png',
 		scale : 'medium',
 		style : 'margin:0 0 0 10px'
@@ -270,9 +270,20 @@ function showCap() {
  */
 function unselectFeatures() {
 	
+	Ext.getCmp('gridSel').setTitle("Territori selezionati");
+	//flag tasto deseleziona tutto = 1
+	deseleziona_tutto=1;
+	tot_territori_da_caricare = 0;
+	tot_territori_caricati=0;
 	selectionControl.unselectAll();
 	myData = [];
-	Ext.getCmp('gridSel').getStore().loadData(myData, false);
+	myDataBox = [];
+	myDataScenario = [];
+	Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+
+	//flag tasto deseleziona tutto = 0
+	deseleziona_tutto=0;
+
 }
 
 /**

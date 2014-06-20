@@ -426,7 +426,18 @@ function closeZA(panelZA, scenarioAp){
 	console.log("riattivo propria zona");
 	 if (admin_azienda==0)
 	    	caricaFiltroZone(territori_sele);
-
+	 //riattivo colore maschera
+	 stileColore = {
+			    strokeColor: '#ffffff',
+			    //fillColor: '#' + ZonaSelezionata[2],
+			    fillColor: '#'+colore_maschera,
+			    fillOpacity: 0.65,
+			    strokeWidth: 0.7,
+			    cursor: 'crosshair'
+			};
+	 ZonaSelezionata[2]=colore_maschera;
+	 ZonaFrammentata[2]=colore_maschera;
+	 
 }
 
 /**

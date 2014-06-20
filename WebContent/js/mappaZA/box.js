@@ -59,11 +59,11 @@ selected = Ext.create('Ext.grid.Panel', {
             tooltip: 'Elimina questo territorio',
             handler: function (grid, rowIndex, colIndex) {
 
-            	//se non sei admin azienda e non sei in ZA alla disabilita
-            	if (admin_azienda==0 && Ext.getCmp('zone_analysis_panel').isVisible()==false){
-            		//alert("Territori non Assegnati alla tua zona");
-            		return;
-            	}
+//            	//se non sei admin azienda e non sei in ZA alla disabilita
+//            	if (admin_azienda==0 && Ext.getCmp('zone_analysis_panel').isVisible()==false){
+//            		//alert("Territori non Assegnati alla tua zona");
+//            		return;
+//            	}
                 //elimino il territorio dalla box
                 var record = grid.getStore().getAt(rowIndex);
                 grid.getStore().removeAt(rowIndex);
@@ -73,6 +73,9 @@ selected = Ext.create('Ext.grid.Panel', {
                 var fid = fromNomiToFid(record.data.tabella_territorio, codice_tree);
                 unselectSingleFeature(fid);
                 //l'evento "featureunselected" della mappa eliminera i territori dalla zona e Scenario
+                
+                if (Ext.getCmp('zone_analysis_panel').isVisible()==false)
+                	LoadScenarioInBox();
             }
         }]
     }]

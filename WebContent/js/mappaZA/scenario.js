@@ -6,6 +6,8 @@ var numS = 1;
 var fine_caricamento = true;
 var tot_territori_da_caricare = 0;
 var tot_territori_caricati = 0;
+
+var colore_framm;
 //array per la gestione del panel Scenario
 var myDataScenari = [];
 var store_scenario = Ext.create('Ext.data.ArrayStore', {
@@ -401,7 +403,7 @@ function visualizzaZoneDisgregati(request) {
   var features = gml.read(request.responseText);
   //estraggo colore
   //this sarebbe il parametro scope della chiamata al geoserver
-  var colore = this;
+  //var coloreParam = this;
   //copia feature dalla risposta di geoserver
   var feat=features[0];
   //aggiungo feature all albero
@@ -410,18 +412,23 @@ function visualizzaZoneDisgregati(request) {
   //devo aggiungere feature alla zona vecchia
   addFeaturesToGridDisgregata(feat);
 
+  
+  if (colore_framm==null)
+	  colore_framm=colore_maschera;
+  console.log("AAAAAAA");
+  console.log(colore_framm);
   //se nel parametri ce il colore...crea stile ed aggiungilo alla feature
-  if (colore!=null){
+  
     var stileColore2 = {
         strokeColor : '#ffffff',
-        fillColor : '#'+colore,
+        fillColor : '#'+colore_framm,
         // fillColor : '#3FF87F',
         fillOpacity : 0.65,
         strokeWidth : 0.7,
         cursor : 'crosshair'
     };
     feat.style=stileColore2;
-  }
+  
 
   //aggiungi alla mappa
   if (contains(select.features, features[0]) == false) {
@@ -433,6 +440,36 @@ function visualizzaZoneDisgregati(request) {
   if (hash_contains(selectionControl.features, features[0]) == false) {
     selectionControl.features[features[0].fid] = features[0];
   }
+  
+  tot_territori_caricati++;
+  if (tot_territori_da_caricare == tot_territori_caricati){
+	  if (Ext.getCmp('zone_analysis_panel').isVisible()==false)
+		  	LoadScenarioInBox();
+		  else
+		  	LoadZonaInBox(ZonaSelezionata[1]);
+	  
+	  tot_territori_da_caricare=0;
+	  tot_territori_caricati=0;
+  }
+  
 
 
+}
+
+
+
+
+function LoadScenarioInBox() {
+
+
+	//ordino lo scenario
+	//posso farlo quando lo inserisco senza farlo qui?
+	//myDataScenario.sort(orderByNomeZona);
+
+	//imposto titolo sul box
+	console.log("CARICA STO CAZZO DI SCENARIO");
+	Ext.getCmp('gridSel').setTitle("Territori Selezionati");
+	myDataBox=myDataScenario;
+	Ext.getCmp('gridSel').getStore().loadData(myDataBox, false);
+	//scorro tutto lo scenario e copio nell'array del box solo quei terroritori con la zona desiderata
 }
