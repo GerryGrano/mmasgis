@@ -13,10 +13,7 @@ var ZonaFrammentata = [];
 var TitoloBox = null;
 //flag per ottimizzare la deselezione
 var deseleziona_tutto = 0;
-console.log(zona_id);
 var prova = Ext.JSON.decode(territori_sele);
-console.log(prova);
-console.log(admin_azienda);
 
 
 //oggetto colore da aggiungere alla feature prima di visualizzarla nella mappa
@@ -40,10 +37,6 @@ Ext.BLANK_IMAGE_URL = './extjs/resources/themes/images/default/tree/s.gif';
  * APPLICATION MAIN ENTRY POINT
  */
 Ext.onReady(function () {
-
-	if ( admin_azienda == 1 ) {
-		visualizzaTerritori(territori_sele);
-	}
 
 	Ext.QuickTips.init();
 
@@ -1306,14 +1299,6 @@ function getChildren(fid, requestFid) {
 	});
 
 }
-
-
-function visualizzaTerritori(territori) {
-	
-
-}
-
-
 
 
 //GESTORE DELL EVENTO FEATURE SELECTED

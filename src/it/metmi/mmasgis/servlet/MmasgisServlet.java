@@ -78,8 +78,14 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		taskActions.put("getNodes", new NodeTask());
 		taskActions.put("getSigla", new SiglaTask());
 		taskActions.put("getFid", new FidTask());
-		taskActions.put("getScenario", new ScenarioTask());
 		taskActions.put("getFigli", new GetFigliTask());
+		
+		// GESTIONE SCENARI
+		taskActions.put("getListScen", new GetListScen());
+		taskActions.put("getScenario", new ScenarioTask());
+		taskActions.put("applyScenario", new ScenarioApply());
+		taskActions.put("updateScenario", new ScenarioUpdate());
+
 
 		// DOPO SELEZIONE AREA EFFETTUA LA RICERCA DEI PUNTI VENDITA
 		taskActions.put("paging", new ListTask());
@@ -129,7 +135,10 @@ public class MmasgisServlet extends HttpServlet implements Servlet {
 		// EXPORT TO EXCEL
 		taskActions.put("exportStat", new ExportStat());
 		taskActions.put("excel", new ExcelTask());
+		
+		//Esporta in txt
 		taskActions.put("text", new TextTask());
+		taskActions.put("textScenario", new TextScenarioTask());
 
 		// work in progress: da fare..controlli su parametri ricevuti dalla
 		// finestra di dialogo

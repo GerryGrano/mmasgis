@@ -42,6 +42,14 @@ if(request.getParameterMap().containsKey("id_vetrina")) {
 	<input type="hidden" name="filename" />
 </form>
 
+<form id="txtScenario" method="post" action="" >
+	<input type="hidden" name="box1" value="" />
+	<input type="hidden" name="box2" value="" />
+	<input type="hidden" name="box3" value="" />
+	<input type="hidden" name="task" />
+	<input type="hidden" name="filename" />
+</form>
+
 <form id="showFeatures" action="risultati.jsp" method="post" <% if(id_offerta.equals("")&&id_vetrina.equals("")){ out.print("target=\"new_tab\""); }%> >
     <input type="hidden" name="reg" value="">
     <input type="hidden" name="pro" value="">

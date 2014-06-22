@@ -13,11 +13,6 @@ var winAssegna;
 var selezione = '';
 var colore = 'CCCCCC';
 
-
-
-
-
-
 /**
  * STORE DELLE ZONE
  */
@@ -30,7 +25,7 @@ var store_zone_selected = Ext.create('Ext.data.ArrayStore', {
 	}, {
 		name: 'zona'
 	}, {
-		name: 'fid'
+		name: 'id'
 	}, {
 		name: 'agente'
 	}, {
@@ -201,6 +196,7 @@ zone = Ext.create('Ext.grid.Panel', {
 					myDataZone.splice(rowIndex, 1);
 					grid.getStore().removeAt(rowIndex);
 					unselectFeaturesByZone(rec.data.zona);
+					modified = true;
 				}
 			}]
 		}]
@@ -209,7 +205,7 @@ zone = Ext.create('Ext.grid.Panel', {
 		//all'evento seleziona zona x, carica in box i territori di x
 		select: function (th, record, index, eOpts) {
 			var selection = zone.getView().getSelectionModel().getSelection()[0];
-			ZonaSelezionata = new Array(selection.data.fid, selection.data.zona, selection.data.color);
+			ZonaSelezionata = new Array(selection.data.id, selection.data.zona, selection.data.color);
 			stileColore = {
 					strokeColor: '#ffffff',
 					fillColor: '#' + ZonaSelezionata[2],
@@ -267,7 +263,7 @@ function newZone() {
 		items: [{
 			fieldLabel: 'Zona',
 			name: 'nome',
-			value: ' Nome Zona',
+			value: 'Nome Zona',
 			labelWidth: 60,
 			width: 250,
 			layout: 'fit'
@@ -303,7 +299,7 @@ function newZone() {
 							var r = {
 									color: colore,
 									zona: valore,
-									fid: "",
+									id: "",
 									agente: "",
 									space: ""
 							};
@@ -311,6 +307,7 @@ function newZone() {
 							Ext.getCmp('zoneSel').getStore().loadData(myDataZone, false);
 							Ext.getCmp('tlzone').enable();
 							Ext.getCmp('myWinNew').close();
+							modified = true;
 						} else {
 							inserimentoErrato("Colore");
 						}
@@ -382,15 +379,23 @@ function saveZone() {
  *
  * funzione che esporta la zona in un file
  */
-function exportScenario(box) {
-	
-	var ob1 = JSON.stringify(box);
+function exportScenario(scenario,zona,box) {
 
-	var f = document.getElementById('txt');
+	var  ob1= JSON.stringify(scenario);
+	
+	var  ob2= JSON.stringify(myDataZone);
+	
+	var territoriPerZone = new Array();
+	
+	var  ob3= JSON.stringify(myDataScenario);
+
+	var f = document.getElementById('txtScenario');
 	f.action = 'http://' + constants.ip + constants.root + constants.servlet;
-	f.task.value = 'text';
-	f.box.value = ob1;
-	f.filename.value = "Scenario";
+	f.task.value = 'textScenario';
+	f.box1.value = ob1;
+	f.box2.value = ob2;
+	f.box3.value = ob3; 
+	f.filename.value = myDataScenari[0][0];
 	f.submit();
 
 }
@@ -543,6 +548,7 @@ function modificaZone(row) {
 									break;
 								}
 							}
+							modified = true;
 						} else {
 							inserimentoErrato("colore");
 						}
@@ -640,6 +646,7 @@ function assegnaAgente(ag, zn) {
 					}
 				}
 				Ext.getCmp('winAssegna').close();
+				modified = true;
 			}
 		}],
 		text: 'chiudi',
@@ -775,7 +782,7 @@ function LoadZoneInZA(scenario){
 				var r = {
 						color: query[x].colore.toString(),
 						zona: query[x].nome,
-						fid: query[x].zona_id,
+						id: query[x].zona_id,
 						agente: query[x].nome_utente,
 						space: ""
 				};
@@ -787,7 +794,7 @@ function LoadZoneInZA(scenario){
 
 			//carico paramentri zona da selezionare
 			var zona_temp = myDataZone[myDataZone.length-1];
-			ZonaSelezionata=new Array(zona_temp.fid,zona_temp.zona,zona_temp.color);
+			ZonaSelezionata=new Array(zona_temp.id,zona_temp.zona,zona_temp.color);
 			//seleziono zona
 			zone.getSelectionModel().select(store_zone_selected.getAt(store_zone_selected.getCount()-1));
 			//carico zona

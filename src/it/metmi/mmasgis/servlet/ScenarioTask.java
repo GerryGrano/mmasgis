@@ -36,13 +36,13 @@ public class ScenarioTask extends Task {
 		int num_scenario = Integer.parseInt(scenario);
 
 		//compongo la query per ottenere la sigla del territorio
-		//select * from rel_zona_territorio as rtz where rtz.tabella_territorio="regioni" ;
-		String queryZone = "SELECT tree.text as nome_territorio,rel_zona_territorio.tabella_territorio,rel_zona_territorio.tc_territorio_id,tree.sigla,zona.zona_id,zona.nome,zona.colore "
-				+ "FROM tree join rel_zona_territorio join zona  "
-				+ "where mid(tree.layer,1,3)=mid(tabella_territorio,1,3)  "
-				+ "and (rel_zona_territorio.tc_territorio_id -1) = tree.codice "
-				+ "and zona.zona_id = rel_zona_territorio.zona_id and scenario_id = "+num_scenario+" "
-				+ "order by zona.nome";
+		String queryZone = "SELECT tree.text as nome_territorio,rel_zona_territorio.tabella_territorio,rel_zona_territorio.tc_territorio_id,tree.sigla,zona.zona_id,zona.nome,zona.colore,scenario.nome as nome_scenario "
+				+ "FROM zona "
+				+ "JOIN scenario ON scenario.scenario_id = zona.scenario_id "
+				+ "LEFT OUTER JOIN rel_zona_territorio ON zona.zona_id = rel_zona_territorio.zona_id "
+				+ "LEFT OUTER JOIN tree ON mid(tree.layer,1,3) = mid(tabella_territorio,1,3) AND (rel_zona_territorio.tc_territorio_id -1) = tree.codice "
+				+ "WHERE scenario.scenario_id = '"+num_scenario+"' "
+				+ "ORDER BY zona.zona_id ";
 		
 		System.out.println(queryZone);
 
@@ -50,6 +50,8 @@ public class ScenarioTask extends Task {
 		if (db.connetti()) {
 			// eseguo query
 			ArrayList<HashMap<String,String>> Regioni= db.eseguiQuery(queryZone, true);
+			
+			System.out.println(Regioni);
 			//ArrayList<HashMap<String,String>> Province= db.eseguiQuery(queryRegioni, true);
 			//ArrayList<HashMap<String,String>> Comuni= db.eseguiQuery(queryRegioni, true);
 			//ArrayList<HashMap<String,String>> Cap= db.eseguiQuery(queryRegioni, true);
